@@ -1,0 +1,2115 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Estreias SP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Plus+Jakarta+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg:#08080a;
+      --panel:#111116;
+      --panel2:#17171d;
+      --border:rgba(212,175,55,.22);
+      --gold:#d4af37;
+      --gold2:#f3e5ab;
+      --goldGlow:rgba(212,175,55,.24);
+      --text:#f8f9fa;
+      --muted:#8a8d93;
+      --green:#22c55e;
+      --red:#e50914;
+
+      /* mapa exato */
+      --map-bg:#d9d9d9;
+      --map-outline:#f0a8ea;
+      --map-seat:#41c34a;
+      --map-seat-disabled:#0f55cc;
+      --map-seat-love:#fff;
+      --map-seat-love-border:#d4c100;
+      --map-screen:#5758ec;
+      --map-screen-text:#fff;
+      --map-label-bg:#ececec;
+      --map-label-text:#666;
+      --map-taken:#a0a0a0;
+      --map-selected:#ffbf00;
+    }
+
+    * { box-sizing:border-box; margin:0; padding:0; font-family:'Plus Jakarta Sans', sans-serif; }
+    body {
+      min-height:100vh;
+      color:var(--text);
+      background:
+        radial-gradient(circle at 50% 0%, rgba(212,175,55,.09), transparent 45%),
+        radial-gradient(circle at 85% 90%, rgba(127,29,29,.08), transparent 40%),
+        var(--bg);
+      padding:28px 20px 42px;
+    }
+
+    header {
+      max-width:1240px;
+      margin:0 auto 26px;
+      padding:20px 28px;
+      border:1px solid var(--border);
+      border-radius:18px;
+      background:rgba(17,17,22,.88);
+      backdrop-filter:blur(14px);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:18px;
+      box-shadow:0 14px 40px rgba(0,0,0,.55);
+    }
+
+    .brand-title {
+      font-family:'Cinzel', serif;
+      font-weight:900;
+      font-size:1.65rem;
+      letter-spacing:4px;
+      text-transform:uppercase;
+      background:linear-gradient(135deg,#fff, var(--gold), var(--gold2));
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+    }
+    .brand-sub {
+      font-size:.72rem;
+      color:var(--gold);
+      letter-spacing:2px;
+      text-transform:uppercase;
+      margin-top:3px;
+    }
+
+    .admin-btn {
+      background:transparent;
+      border:1px solid var(--gold);
+      color:var(--gold);
+      padding:10px 18px;
+      border-radius:9px;
+      font-size:.77rem;
+      font-weight:700;
+      letter-spacing:1px;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition:.2s;
+    }
+    .admin-btn:hover, .admin-btn.active {
+      background:var(--gold);
+      color:#000;
+      box-shadow:0 0 20px var(--goldGlow);
+    }
+
+    .container { max-width:1240px; margin:0 auto; }
+
+    .kpi-grid {
+      display:grid;
+      grid-template-columns:repeat(4, 1fr);
+      gap:18px;
+      margin-bottom:24px;
+    }
+
+    .kpi {
+      background:linear-gradient(180deg,var(--panel2),var(--panel));
+      border:1px solid var(--border);
+      border-radius:14px;
+      padding:18px 20px;
+    }
+    .kpi small {
+      display:block;
+      color:var(--muted);
+      font-size:.68rem;
+      letter-spacing:1.4px;
+      text-transform:uppercase;
+      margin-bottom:7px;
+    }
+    .kpi strong {
+      font-family:'Cinzel', serif;
+      font-size:1.85rem;
+    }
+    .kpi.gold strong { color:var(--gold); }
+    .kpi.green strong { color:var(--green); }
+    .kpi.red strong { color:var(--red); }
+
+    .legend {
+      display:flex;
+      gap:18px;
+      flex-wrap:wrap;
+      justify-content:center;
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:999px;
+      padding:12px 18px;
+      margin:0 auto 26px;
+      width:fit-content;
+      max-width:100%;
+    }
+    .legend-item {
+      display:flex;
+      align-items:center;
+      gap:7px;
+      color:var(--muted);
+      font-size:.75rem;
+    }
+    .legend-box {
+      width:15px; height:15px; border-radius:4px;
+      border:1px solid rgba(255,255,255,.12);
+    }
+
+    .rooms-grid {
+      display:grid;
+      grid-template-columns:repeat(auto-fit, minmax(335px, 1fr));
+      gap:22px;
+    }
+
+    .room-card {
+      background:linear-gradient(180deg,#141419,#0f0f14);
+      border:1px solid var(--border);
+      border-radius:17px;
+      padding:22px;
+      transition:.25s;
+      display:flex;
+      flex-direction:column;
+      justify-content:space-between;
+      min-height:260px;
+    }
+    .room-card:hover {
+      transform:translateY(-3px);
+      border-color:var(--gold);
+      box-shadow:0 14px 32px rgba(0,0,0,.5), 0 0 18px var(--goldGlow);
+    }
+
+    .room-head {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:14px;
+    }
+    .room-title {
+      font-family:'Cinzel', serif;
+      font-weight:700;
+      font-size:1.35rem;
+    }
+    .room-film { color:var(--gold); font-size:.81rem; margin-top:4px; }
+    .cap {
+      white-space:nowrap;
+      padding:4px 9px;
+      border:1px solid var(--gold);
+      border-radius:999px;
+      color:var(--gold);
+      font-size:.7rem;
+      background:rgba(212,175,55,.08);
+    }
+
+    .stats { list-style:none; margin:20px 0; }
+    .stats li {
+      display:flex;
+      justify-content:space-between;
+      padding:8px 0;
+      border-bottom:1px solid rgba(255,255,255,.05);
+      font-size:.81rem;
+      color:var(--muted);
+    }
+    .stats li b { color:var(--text); }
+
+    .btn-gold {
+      width:100%;
+      border:0;
+      border-radius:999px;
+      padding:13px 14px;
+      background:linear-gradient(135deg,var(--gold), #b8860b);
+      color:#000;
+      font-weight:800;
+      letter-spacing:.8px;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition:.2s;
+    }
+    .btn-gold:hover {
+      filter:brightness(1.08);
+      box-shadow:0 0 20px var(--goldGlow);
+    }
+
+    .modal {
+      display:none;
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      background:rgba(0,0,0,.86);
+      backdrop-filter:blur(10px);
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+    }
+    .modal-card {
+      width:100%;
+      max-width:1180px;
+      max-height:92vh;
+      overflow:auto;
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:20px;
+      padding:28px;
+      position:relative;
+      box-shadow:0 28px 80px rgba(0,0,0,.78);
+    }
+    .modal-close {
+      position:absolute; right:18px; top:14px;
+      background:none; border:0; color:var(--muted);
+      font-size:1.8rem; cursor:pointer;
+    }
+    .modal-top {
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:15px;
+      padding-right:40px;
+      margin-bottom:14px;
+    }
+    .modal-room {
+      font-family:'Cinzel', serif;
+      color:var(--gold);
+      font-size:1.35rem;
+    }
+    .modal-film {
+      font-size:.78rem;
+      color:var(--muted);
+      margin-top:4px;
+    }
+
+    .admin-indicator {
+      display:none;
+      margin:14px 0 18px;
+      padding:10px 13px;
+      border:1px solid var(--gold);
+      border-radius:9px;
+      background:rgba(212,175,55,.1);
+      color:var(--gold2);
+      font-size:.76rem;
+    }
+
+    .map-outer {
+      background:var(--map-bg);
+      padding:14px 14px 10px;
+      border-radius:12px;
+      overflow:auto;
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .map-inner {
+      width:max-content;
+      margin:0 auto;
+    }
+    .map-row {
+      display:flex;
+      align-items:center;
+      gap:5px;
+      margin-bottom:3px;
+    }
+    .row-label {
+      width:18px;
+      height:22px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      background:var(--map-label-bg);
+      color:var(--map-label-text);
+      font-size:.72rem;
+      border-radius:2px;
+      flex:0 0 auto;
+    }
+    .row-seats {
+      display:flex;
+      align-items:center;
+      gap:2px;
+      padding:0 7px;
+    }
+
+    .seat {
+      width:22px;
+      height:22px;
+      border-radius:999px;
+      border:2px solid var(--map-outline);
+      background:var(--map-seat);
+      color:#fff;
+      font-size:.62rem;
+      font-weight:700;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      line-height:1;
+      user-select:none;
+      transition:transform .12s ease, box-shadow .12s ease, filter .12s ease;
+      box-shadow:0 0 0 1px rgba(0,0,0,.02) inset;
+    }
+    .seat:hover:not(.empty) {
+      transform:scale(1.08);
+      box-shadow:0 0 0 2px rgba(255,255,255,.18), 0 0 10px rgba(0,0,0,.12);
+    }
+    .seat.empty {
+      visibility:hidden;
+      pointer-events:none;
+    }
+    .seat.selected {
+      background:var(--map-selected)!important;
+      color:#111!important;
+      border-color:#fff!important;
+    }
+    .seat.taken {
+      background:var(--map-taken)!important;
+      color:#fff!important;
+    }
+    .seat.wheelchair, .seat.companion {
+      background:var(--map-seat-disabled);
+      color:#fff;
+      border-radius:8px;
+      width:22px;
+      font-size:.6rem;
+    }
+    .seat.obese {
+      background:var(--map-taken);
+      color:#fff;
+      border-radius:999px;
+    }
+    .seat.rs {
+      background:#f0e71a;
+      color:#111;
+      width:26px;
+      border-radius:4px;
+    }
+    .seat.love {
+      background:var(--map-seat-love);
+      color:#777;
+      width:26px;
+      border:2px solid var(--map-seat-love-border);
+      border-radius:4px;
+      font-size:.68rem;
+    }
+
+    .screen-row {
+      display:flex;
+      align-items:center;
+      gap:8px;
+      margin-top:8px;
+    }
+    .screen-gap { width:18px; flex:0 0 auto; }
+    .screen-box {
+      width:100%;
+      max-width:fit-content;
+      flex:1;
+    }
+    .screen-small-row {
+      display:flex;
+      gap:8px;
+      justify-content:center;
+      margin-bottom:5px;
+    }
+    .screen-seat {
+      width:26px;
+      height:20px;
+      border-radius:4px;
+      border:2px solid var(--map-seat-love-border);
+      background:#fff;
+      color:#777;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:.62rem;
+      font-weight:700;
+    }
+    .screen-bar {
+      background:var(--map-screen);
+      color:var(--map-screen-text);
+      font-weight:800;
+      font-size:1rem;
+      text-align:center;
+      padding:7px 0 5px;
+      border-radius:0;
+    }
+
+    .checkout {
+      margin-top:22px;
+      background:rgba(0,0,0,.28);
+      border:1px solid var(--border);
+      border-radius:13px;
+      padding:18px;
+    }
+    .checkout-head {
+      display:flex;
+      justify-content:space-between;
+      gap:14px;
+      align-items:center;
+      font-size:.82rem;
+    }
+    .checkout-head b { color:var(--gold); }
+    .form-group { margin-top:13px; }
+    .form-group label {
+      display:block;
+      font-size:.72rem;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+    .form-group input {
+      width:100%;
+      padding:11px 12px;
+      border-radius:7px;
+      border:1px solid var(--border);
+      background:#09090d;
+      color:#fff;
+      outline:none;
+    }
+    .form-group input:focus { border-color:var(--gold); }
+    .actions { display:flex; gap:9px; margin-top:14px; }
+    .actions .btn-gold { flex:2; }
+    .btn-danger, .btn-secondary {
+      border:0;
+      border-radius:8px;
+      padding:11px 13px;
+      color:#fff;
+      font-weight:700;
+      cursor:pointer;
+    }
+    .btn-danger {
+      background:var(--red);
+      display:none;
+      flex:1;
+    }
+    .btn-secondary {
+      background:#334155;
+      font-size:.72rem;
+    }
+    .note {
+      font-size:.67rem;
+      color:var(--muted);
+      margin-top:10px;
+    }
+
+    .ticket-modal .modal-card {
+      max-width:390px;
+      text-align:center;
+    }
+    .ticket-pass {
+      border:2px dashed var(--gold);
+      border-radius:16px;
+      padding:25px;
+    }
+    .ticket-pass h3 {
+      font-family:'Cinzel', serif;
+      color:var(--gold);
+      letter-spacing:2px;
+    }
+    .ticket-seat {
+      color:var(--gold);
+      font-weight:800;
+      margin:9px 0;
+    }
+    .ticket-id {
+      font-size:.68rem;
+      color:var(--muted);
+      word-break:break-all;
+    }
+
+    @media (max-width:850px) {
+      .kpi-grid { grid-template-columns:repeat(2,1fr); }
+      header { align-items:flex-start; flex-direction:column; }
+      .admin-btn { width:100%; }
+    }
+    @media (max-width:520px) {
+      body { padding:16px 12px; }
+      .kpi-grid { grid-template-columns:1fr 1fr; gap:10px; }
+      .kpi strong { font-size:1.45rem; }
+      .modal-card { padding:22px 14px; }
+      .rooms-grid { grid-template-columns:1fr; }
+      .seat { width:20px; height:20px; font-size:.55rem; }
+      .row-label { width:16px; height:20px; font-size:.66rem; }
+    }
+  
+    .ticket-unit{
+      border:2px dashed var(--gold);
+      border-radius:16px;
+      padding:20px;
+      text-align:center;
+      background:#0d0d11;
+    }
+    .ticket-unit h4{
+      font-family:'Cinzel',serif;
+      color:var(--gold);
+      letter-spacing:1.5px;
+      margin-bottom:8px;
+    }
+    .ticket-qr{
+      width:150px;
+      height:150px;
+      background:#fff;
+      margin:14px auto;
+      padding:5px;
+      border-radius:8px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .ticket-qr img,.ticket-qr canvas{max-width:140px!important;max-height:140px!important}
+    .seat.selected{background:var(--map-selected)!important;color:#111!important;border-color:#fff!important}
+  
+    .guest-seat-row{
+      display:grid;
+      grid-template-columns:120px 1fr;
+      gap:10px;
+      align-items:center;
+      margin-top:8px;
+    }
+    .guest-seat-tag{
+      border:1px solid var(--border);
+      background:rgba(212,175,55,.08);
+      color:var(--gold);
+      border-radius:7px;
+      padding:10px 8px;
+      font-size:.72rem;
+      font-weight:800;
+      text-align:center;
+    }
+    .guest-seat-row input{
+      width:100%;
+      padding:11px 12px;
+      border-radius:7px;
+      border:1px solid var(--border);
+      background:#09090d;
+      color:#fff;
+      outline:none;
+    }
+    .guest-seat-row input:focus{border-color:var(--gold)}
+    @media(max-width:520px){
+      .guest-seat-row{grid-template-columns:1fr}
+      .guest-seat-tag{text-align:left}
+    }
+  
+    .admin-movies-panel{
+      display:none;
+      margin-bottom:24px;
+      background:linear-gradient(180deg,#141419,#0f0f14);
+      border:1px solid var(--border);
+      border-radius:17px;
+      padding:22px;
+    }
+    .admin-movies-panel.active{display:block}
+    .admin-section-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:16px;
+      margin-bottom:18px;
+    }
+    .admin-section-head h2{
+      font-family:'Cinzel',serif;
+      color:var(--gold);
+      font-size:1.2rem;
+      margin-bottom:4px;
+    }
+    .admin-section-head p{
+      color:var(--muted);
+      font-size:.75rem;
+      line-height:1.5;
+    }
+    .movie-form-grid{
+      display:grid;
+      grid-template-columns:2fr 1fr 1fr 1fr auto auto;
+      gap:10px;
+      align-items:end;
+    }
+    .movie-form-field label{
+      display:block;
+      color:var(--muted);
+      font-size:.68rem;
+      text-transform:uppercase;
+      letter-spacing:.8px;
+      margin-bottom:6px;
+    }
+    .movie-form-field input,
+    .movie-form-field select{
+      width:100%;
+      padding:11px 12px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      background:#09090d;
+      color:#fff;
+      outline:none;
+    }
+    .movie-form-field input:focus,
+    .movie-form-field select:focus{border-color:var(--gold)}
+    .movie-list{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:18px;
+    }
+    .movie-admin-item{
+      display:grid;
+      grid-template-columns:minmax(0,1.6fr) .8fr .8fr auto;
+      gap:12px;
+      align-items:center;
+      padding:13px 14px;
+      border-radius:11px;
+      border:1px solid rgba(255,255,255,.07);
+      background:rgba(255,255,255,.025);
+    }
+    .movie-admin-title{
+      font-weight:800;
+      color:#fff;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .movie-admin-meta{
+      color:var(--muted);
+      font-size:.75rem;
+    }
+    .movie-admin-actions{
+      display:flex;
+      gap:7px;
+      justify-content:flex-end;
+    }
+    .btn-mini{
+      border:1px solid var(--border);
+      background:#1b1b22;
+      color:#fff;
+      border-radius:7px;
+      padding:7px 9px;
+      cursor:pointer;
+      font-size:.7rem;
+      font-weight:700;
+    }
+    .btn-mini:hover{border-color:var(--gold)}
+    .btn-mini.danger{color:#ff8c8c;border-color:rgba(229,9,20,.35)}
+    .empty-movies{
+      color:var(--muted);
+      border:1px dashed var(--border);
+      border-radius:10px;
+      padding:16px;
+      text-align:center;
+      font-size:.76rem;
+    }
+    .movie-date-line{
+      color:var(--muted);
+      font-size:.72rem;
+      margin-top:5px;
+    }
+    @media(max-width:900px){
+      .movie-form-grid{grid-template-columns:1fr 1fr}
+      .movie-form-grid .movie-form-field:first-child{grid-column:1/-1}
+      .movie-form-grid .btn-gold{grid-column:auto}
+      .movie-admin-item{grid-template-columns:1fr auto}
+      .movie-admin-item .movie-admin-meta:nth-of-type(2){display:none}
+    }
+    @media(max-width:560px){
+      .movie-form-grid{grid-template-columns:1fr}
+      .movie-form-grid .movie-form-field:first-child,.movie-form-grid .btn-gold{grid-column:auto}
+      .movie-admin-item{grid-template-columns:1fr}
+      .movie-admin-actions{justify-content:flex-start}
+    }
+
+  
+    .duplicate-room-grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:12px;
+      margin-top:16px;
+    }
+    .duplicate-room-grid label{
+      display:block;
+      color:var(--muted);
+      font-size:.7rem;
+      text-transform:uppercase;
+      letter-spacing:.8px;
+      margin-bottom:6px;
+    }
+    .duplicate-room-grid select{
+      width:100%;
+      padding:12px;
+      border-radius:8px;
+      border:1px solid var(--border);
+      background:#09090d;
+      color:#fff;
+      outline:none;
+    }
+    .duplicate-room-grid select:focus{border-color:var(--gold)}
+
+  
+    .admin-no-name-note{
+      margin-top:12px;padding:10px 12px;border:1px solid var(--border);
+      border-radius:8px;background:rgba(212,175,55,.06);
+      color:var(--muted);font-size:.72rem;
+    }
+  </style>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <header>
+    <div>
+      <div class="brand-title">Estreias SP</div>
+      <div class="brand-sub">Pré-estreias dos filmes de Mateus Buarque em São Paulo</div>
+    </div>
+    <button class="admin-btn" id="adminBtn" onclick="toggleAdmin()">🔒 Modo Organizador</button>
+  </header>
+
+  <div class="container">
+    
+    <section class="admin-movies-panel" id="adminMoviesPanel">
+      <div class="admin-section-head">
+        <div>
+          <h2>Cadastro de filmes</h2>
+          <p>Cadastre quantos filmes quiser. O botão “Duplicar” copia automaticamente o último filme cadastrado para todas as salas que ainda faltarem, mantendo nome, data e horário e alterando apenas a sala.</p>
+        </div>
+      </div>
+
+      <div class="movie-form-grid">
+        <div class="movie-form-field">
+          <label>Nome do filme</label>
+          <input id="movieTitleInput" type="text" placeholder="Ex: Bugados – O Filme">
+        </div>
+        <div class="movie-form-field">
+          <label>Sala</label>
+          <select id="movieRoomInput">
+            <option value="1">Sala 01</option>
+            <option value="2">Sala 02</option>
+            <option value="3">Sala 03</option>
+            <option value="4">Sala 04</option>
+            <option value="5">Sala 05</option>
+          </select>
+        </div>
+        <div class="movie-form-field">
+          <label>Data</label>
+          <input id="movieDateInput" type="date">
+        </div>
+        <div class="movie-form-field">
+          <label>Horário</label>
+          <input id="movieTimeInput" type="time">
+        </div>
+        <button class="btn-gold" id="movieSaveBtn" onclick="saveMovie()">Adicionar filme</button>
+        <button class="btn-gold" id="duplicateAllBtn" onclick="duplicateLastMovieToAllRooms()" style="background:linear-gradient(135deg,#f3e5ab,#d4af37)">Duplicar</button>
+      </div>
+
+      <div class="movie-list" id="movieAdminList"></div>
+    </section>
+
+    <section class="kpi-grid">
+      <div class="kpi gold"><small>Salas mapeadas</small><strong>5</strong></div>
+      <div class="kpi gold"><small>Capacidade oficial</small><strong id="kTotal">0</strong></div>
+      <div class="kpi green"><small>Assentos livres</small><strong id="kFree">0</strong></div>
+      <div class="kpi red"><small>Assentos reservados</small><strong id="kTaken">0</strong></div>
+    </section>
+
+    <div class="legend">
+      <div class="legend-item"><span class="legend-box" style="background:var(--map-seat); border-color:var(--map-outline)"></span> Livre</div>
+      <div class="legend-item"><span class="legend-box" style="background:var(--map-taken)"></span> Reservado</div>
+      <div class="legend-item"><span class="legend-box" style="background:var(--map-selected)"></span> Selecionado</div>
+      <div class="legend-item"><span class="legend-box" style="background:var(--map-seat-disabled)"></span> Cadeirante / Acomp.</div>
+      <div class="legend-item"><span class="legend-box" style="background:#fff; border-color:var(--map-seat-love-border)"></span> Namoradeira</div>
+      <div class="legend-item"><span class="legend-box" style="background:#f0e71a"></span> RS</div>
+    </div>
+
+    <main class="rooms-grid" id="roomsGrid"></main>
+  </div>
+
+  <div class="modal" id="mapModal">
+    <div class="modal-card">
+      <button class="modal-close" onclick="closeModal('mapModal')">×</button>
+      <div class="modal-top">
+        <div>
+          <div class="modal-room" id="modalRoom">Sala</div>
+          <div class="modal-film" id="modalFilm">Premiere</div>
+        </div>
+        <button class="btn-secondary" id="exportBtn" style="display:none" onclick="exportCSV()">Exportar lista VIP</button>
+      </div>
+
+      <div class="admin-indicator" id="adminIndicator">👑 Modo Organizador ativo — clique em qualquer assento para consultar, atribuir ou liberar.</div>
+
+      <div class="map-outer">
+        <div class="map-inner" id="mapInner"></div>
+      </div>
+
+      <div class="checkout">
+        <div class="checkout-head">
+          <span>Assentos selecionados: <b id="selectedLabel">Clique em uma poltrona</b></span>
+          <span id="statusLabel" style="color:var(--muted)">---</span>
+        </div>
+        <div class="form-group" id="guestNamesGroup">
+          <label>Nome completo dos convidados</label>
+          <div id="guestInputsContainer">
+            <div class="note">Selecione um ou mais assentos para preencher os nomes.</div>
+          </div>
+        </div>
+        <div class="admin-no-name-note" id="adminNoNameNote" style="display:none">No Modo Organizador, basta selecionar os assentos. Não é necessário informar nomes.</div>
+        <div class="actions">
+          <button class="btn-gold" id="confirmSeatBtn" onclick="reserveSeat()">Confirmar assento</button>
+          <button class="btn-secondary" id="selectAllSeatsBtn" style="display:none" onclick="toggleSelectAllSeats()">Selecionar todos</button>
+          <button class="btn-danger" id="releaseBtn" onclick="releaseSeat()">Liberar</button>
+        </div>
+        <div class="note" id="mapNote"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="loginModal">
+    <div class="modal-card" style="max-width:390px">
+      <button class="modal-close" onclick="closeModal('loginModal')">×</button>
+      <h3 style="font-family:'Cinzel',serif;color:var(--gold);margin-bottom:8px">Acesso do Organizador</h3>
+      <p style="font-size:.76rem;color:var(--muted);margin-bottom:14px">Digite sua senha e acesse ao painel do organizador.</p>
+      <div class="form-group">
+        <label>Senha</label>
+        <input id="adminPass" type="password" inputmode="numeric" placeholder="••••">
+      </div>
+      <button class="btn-gold" style="margin-top:14px" onclick="authenticateAdmin()">Entrar</button>
+    </div>
+  </div>
+
+  
+  <div class="modal" id="duplicateMovieModal">
+    <div class="modal-card" style="max-width:420px">
+      <button class="modal-close" onclick="closeModal('duplicateMovieModal')">×</button>
+      <h3 style="font-family:'Cinzel',serif;color:var(--gold);margin-bottom:6px">Duplicar filme</h3>
+      <p id="duplicateMovieName" style="color:var(--muted);font-size:.78rem"></p>
+
+      <div class="duplicate-room-grid">
+        <div>
+          <label>Nova sala</label>
+          <select id="duplicateRoomSelect">
+            <option value="1">Sala 01</option>
+            <option value="2">Sala 02</option>
+            <option value="3">Sala 03</option>
+            <option value="4">Sala 04</option>
+            <option value="5">Sala 05</option>
+          </select>
+        </div>
+        <button class="btn-gold" onclick="confirmDuplicateMovie()">Duplicar filme</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal ticket-modal" id="ticketModal">
+    <div class="modal-card" style="max-width:900px">
+      <button class="modal-close" onclick="closeModal('ticketModal')">×</button>
+      <h3 style="font-family:'Cinzel',serif;color:var(--gold);margin-bottom:16px">INGRESSOS EMITIDOS</h3>
+      <div id="ticketsContainer" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px"></div>
+      <div id="downloadStatus" style="margin-top:18px;color:var(--muted);font-size:.76rem">Preparando download automático...</div>
+    </div>
+  </div>
+
+  <script>
+    let isAdmin = false;
+    let activeMovieId = null;
+    let activeRoom = 1;
+    let selectedSeats = [];
+    let editingMovieId = null;
+    let duplicatingMovieId = null;
+
+    const roomConfigs = {
+      1: { name: "Sala 01", cap: 216, rows: ["O","N","M","L","K","J","I","H","G","F","E","D","C","B","A"] },
+      2: { name: "Sala 02", cap: 84,  rows: ["H","G","F","E","D","C","B","A"] },
+      3: { name: "Sala 03", cap: 177, rows: ["M","L","K","J","I","H","G","F","E","D","C","B","A"] },
+      4: { name: "Sala 04", cap: 171, rows: ["M","L","K","J","I","H","G","F","E","D","C","B","A"] },
+      5: { name: "Sala 05", cap: 133, rows: ["L","K","J","I","H","G","F","E","D","C","B","A"] }
+    };
+
+    const seatLayouts = {
+      // SALA 1 (216 lugares - imagem sala1_2.png)
+      1: {
+        "O": ["1","2","3","4","","5","6","7","8","9","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24"],
+        "N": ["1","2","3","4","","","","5","6","7","8","9","10","11","12","13","14","15","","","","16","17","18","19"],
+        "M": ["1","2","3","4","","","","5","6","7","8","9","10","11","12","13","14","15","","","","16","17","18","19"],
+        "L": ["1","2","3","4","","","","5","6","7","8","9","10","11","12","13","14","15","","","","16","17","18","19"],
+        "K": ["1","2","3","4","","","","5","6","7","8","9","10","11","12","13","14","15","","","","16","17","18","19"],
+        "J": ["1","2","3","4","","","","5","6","7","8","9","10","11","12","13","14","15","","","","16","17","18","19"],
+        "I": ["1","2","3","4","","","","5","6","7","8","9","10","11","12","13","14","15","","","","16","","18"],
+        "H": ["1","2","3","4","","","","5","6","7","8","9","10","11","12","13","14","15"],
+        "G": ["1","2","3","4","","","","5","6","7","8","9","10","11","12","13","14","15"],
+        "F": ["1","2","3","4","","","","5","6","7","8","9","10","11","12","13","14","15"],
+        "E": ["1","2","3","4","","","","i","6","7","8","9","10","11","12","13","i"],
+        "D": ["1","2","3","4","","","","i","6","7","8","9","10","11","12","13","i"],
+        "C": ["1","2","3","4","","","","i","6","7","8","9","10","11","12","13","i"],
+        "B": ["1","ac","w","","","","w","ac","6","ac","w","w","ac","ac","w"],
+        "A": ["","","","","","","","l1","l2","l3","l4","l5","l6","l7","l8","l9","l10","l11","l12","l13","l14"]
+      },
+      // SALA 2 (84 lugares - imagem sala2_2.png)
+      2: {
+        "H": ["l1","l2","","l3","l4","","l5","l6","","l7","l8","","l9","l10","","l11","l12","","l13","l14"],
+        "G": ["","","","l1","l2","","l3","l4","","l5","l6","","l7","l8","","","","","l9","l10"],
+        "F": ["","","","l1","l2","","l3","l4","","l5","l6","","l7","l8","","","","","l9","l10"],
+        "E": ["","","","l1","l2","","l3","l4","","l5","l6","","l7","l8"],
+        "D": ["","","","l1","l2","","l3","l4","","l5","l6","","l7","l8"],
+        "C": ["","","","l1","l2","","l3","l4","","l5","l6","","l7","l8"],
+        "B": ["","","","l1","l2","","l3","l4","","w","","","w","","l7","l8"],
+        "A": ["","","","l1","l2","l3","l4","l5","l6","l7","l8","l9","l10","l11","l12"]
+      },
+      // SALA 3 (177 lugares - imagem sala3_2.png)
+      3: {
+        "M": ["1","2","3","","4","5","","6","7","8","9","10","11","12","13","14","15","16","17","18","19"],
+        "L": ["1","2","3","","","","","4","5","6","7","8","9","10","11","12","13","","","","14","15"],
+        "K": ["1","2","3","","","","","4","5","6","7","8","9","10","11","12","13","","","","14","15"],
+        "J": ["1","2","3","","","","","4","5","6","7","8","9","10","11","12","13","","","","14","15"],
+        "I": ["1","2","3","","","","","4","5","6","7","8","9","10","11","12","13","","","","14","15"],
+        "H": ["1","2","3","","","","","4","5","6","7","8","9","10","11","12","13","","","","14","15"],
+        "G": ["","","rs","rs","","","","4","5","6","7","8","9","10","11","12","13","","","","14","15"],
+        "F": ["","","","","","","","1","2","3","4","5","6","7","8","9","10","","","","11","12"],
+        "E": ["","","","","","","","1","2","3","4","5","6","7","8","9","10","","","","11","12"],
+        "D": ["","","","","","","","i","2","3","4","5","6","7","8","i","","","","10","11"],
+        "C": ["","","","","","","","i","2","3","4","5","6","7","8","i","","","","10","11"],
+        "B": ["","","","","","","","w","ac","ac","w","","w","ac","ac","w","","","","9","10"],
+        "A": ["","l1","l2","","l3","l4","","l5","l6","","l7","l8","","l9","l10","","l11","l12"]
+      },
+      // SALA 4 (171 lugares - imagem sala4_2.png)
+      4: {
+        "M": ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17","18"],
+        "L": ["1","2","3","","","","4","5","6","7","8","9","10","11","12","","","","13","14"],
+        "K": ["1","2","3","","","","4","5","6","7","8","9","10","11","12","","","","13","14"],
+        "J": ["1","2","3","","","","4","5","6","7","8","9","10","11","12","","","","13","14"],
+        "I": ["1","2","3","","","","4","5","6","7","8","9","10","11","12","","","","13","14"],
+        "H": ["","rs","rs","","","","4","5","6","7","8","9","10","11","12","","","","13","14"],
+        "G": ["","","","","","","1","2","3","4","5","6","7","8","9","","","","10","11"],
+        "F": ["","","","","","","1","2","3","4","5","6","7","8","9","","","","10","11"],
+        "E": ["","","","","","","1","2","3","4","5","6","7","8","9","","","","10","11"],
+        "D": ["","","","","","","i","2","3","4","5","6","7","8","","","","9","10"],
+        "C": ["","","","","","","i","2","3","4","5","6","7","8","","","","9","10"],
+        "B": ["","","","","","","w","2","3","","w","5","6","w","","","","8","9"],
+        "A": ["","","l1","l2","","l3","l4","","l5","l6","","l7","l8","","l9","l10","","l11","l12"]
+      },
+      // SALA 5 (133 lugares - imagem sala5_2.png)
+      5: {
+        "L": ["1","2","3","4","5","6","7","8","9","10","11","12","13","14","15","16","17"],
+        "K": ["","","1","2","3","4","5","6","7","8","9","10","","","11","12","13"],
+        "J": ["","","1","2","3","4","5","6","7","8","9","10","","","11","12","13"],
+        "I": ["","","1","2","3","4","5","6","7","8","9","10","","","11","12","13"],
+        "H": ["","","1","2","3","4","5","6","7","8","9","10","","","11","12","13"],
+        "G": ["","","1","2","3","4","5","6","7","8","9","10","","","11","12","13"],
+        "F": ["","","1","2","3","4","5","6","7","8","9","10","","","rs","rs","rs"],
+        "E": ["","","1","2","3","4","5","","7","8","9","10"],
+        "D": ["","","i","2","3","4","5","6","7","8","9","10"],
+        "C": ["","","i","2","3","4","5","6","7","8","9","10"],
+        "B": ["","","1","2","w","w","5","6","w","8"],
+        "A": ["","","","","","l1","l2","","l3","l4","","l5","l6","","l7","l8"]
+      }
+    };
+
+    // FILMES: quantidade ilimitada, persistidos localmente.
+    const MOVIES_KEY = "estreias_sp_movies_v1";
+    const SEATS_KEY = "estreias_sp_movie_seats_v1";
+
+    const defaultMovies = [
+      { id:"film-1", title:"Premiere Principal", roomId:1, date:"", time:"" },
+      { id:"film-2", title:"Sessão Especial VIP", roomId:2, date:"", time:"" },
+      { id:"film-3", title:"Red Carpet Exclusivo", roomId:3, date:"", time:"" },
+      { id:"film-4", title:"Mostra do Diretor", roomId:4, date:"", time:"" },
+      { id:"film-5", title:"Curta-Metragem VIP", roomId:5, date:"", time:"" }
+    ];
+
+    let movies = (() => {
+      try {
+        const saved = JSON.parse(localStorage.getItem(MOVIES_KEY));
+        return Array.isArray(saved) ? saved : defaultMovies;
+      } catch {
+        return defaultMovies;
+      }
+    })();
+
+    // Reservas agora são separadas POR FILME, e não apenas por sala.
+    let seatsState = (() => {
+      try {
+        return JSON.parse(localStorage.getItem(SEATS_KEY)) || {};
+      } catch {
+        return {};
+      }
+    })();
+
+    // Migra as reservas do formato antigo, quando possível.
+    (function migrateOldReservations() {
+      if (Object.keys(seatsState).length) return;
+      let old = null;
+      try { old = JSON.parse(localStorage.getItem("estreias_sp_mapas_exatos")); } catch {}
+      if (!old) return;
+      defaultMovies.forEach(movie => {
+        if (old[movie.roomId] && Object.keys(old[movie.roomId]).length) {
+          seatsState[movie.id] = old[movie.roomId];
+        }
+      });
+      localStorage.setItem(SEATS_KEY, JSON.stringify(seatsState));
+    })();
+
+    function saveMoviesState() {
+      localStorage.setItem(MOVIES_KEY, JSON.stringify(movies));
+    }
+
+    function ensureMovieState(movieId) {
+      if (!seatsState[movieId]) seatsState[movieId] = {};
+    }
+
+    function saveState() {
+      localStorage.setItem(SEATS_KEY, JSON.stringify(seatsState));
+      renderDashboard();
+      renderMovieAdminList();
+    }
+
+    function getMovie(movieId) {
+      return movies.find(m => m.id === movieId) || null;
+    }
+
+    function formatMovieDate(movie) {
+      const parts = [];
+      if (movie.date) {
+        const [y,m,d] = movie.date.split("-");
+        parts.push(`${d}/${m}/${y}`);
+      }
+      if (movie.time) parts.push(movie.time);
+      return parts.join(" • ");
+    }
+
+    function makeMovieId() {
+      return "film-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2,7);
+    }
+
+    function resetMovieForm() {
+      editingMovieId = null;
+      document.getElementById("movieTitleInput").value = "";
+      document.getElementById("movieRoomInput").value = "1";
+      document.getElementById("movieDateInput").value = "";
+      document.getElementById("movieTimeInput").value = "";
+      document.getElementById("movieSaveBtn").innerText = "Adicionar filme";
+    }
+
+    function saveMovie() {
+      if (!isAdmin) return;
+      const title = document.getElementById("movieTitleInput").value.trim();
+      const roomId = Number(document.getElementById("movieRoomInput").value);
+      const date = document.getElementById("movieDateInput").value;
+      const time = document.getElementById("movieTimeInput").value;
+
+      if (!title) return alert("Digite o nome do filme.");
+      if (!roomConfigs[roomId]) return alert("Selecione uma sala válida.");
+
+      if (editingMovieId) {
+        const movie = getMovie(editingMovieId);
+        if (!movie) return;
+        movie.title = title;
+        movie.roomId = roomId;
+        movie.date = date;
+        movie.time = time;
+      } else {
+        movies.push({
+          id: makeMovieId(),
+          title,
+          roomId,
+          date,
+          time
+        });
+      }
+
+      saveMoviesState();
+      resetMovieForm();
+      renderDashboard();
+      renderMovieAdminList();
+    }
+
+
+    function duplicateLastMovieToAllRooms() {
+      if (!isAdmin) return;
+
+      if (!movies.length) {
+        alert("Cadastre pelo menos um filme antes de duplicar.");
+        return;
+      }
+
+      const sourceMovie = movies[movies.length - 1];
+
+      // Identifica o mesmo filme/sessão pelo nome, data e horário.
+      const sameSessionMovies = movies.filter(movie =>
+        movie.title === sourceMovie.title &&
+        (movie.date || "") === (sourceMovie.date || "") &&
+        (movie.time || "") === (sourceMovie.time || "")
+      );
+
+      const usedRooms = new Set(
+        sameSessionMovies.map(movie => Number(movie.roomId))
+      );
+
+      const missingRooms = [];
+      for (let roomId = 1; roomId <= 5; roomId++) {
+        if (!usedRooms.has(roomId)) missingRooms.push(roomId);
+      }
+
+      if (!missingRooms.length) {
+        alert("Este filme já está cadastrado nas 5 salas.");
+        return;
+      }
+
+      if (!confirm(
+        `Duplicar "${sourceMovie.title}" para ${missingRooms.length} sala(s) que ainda faltam?\n\n` +
+        `Serão mantidos nome, data e horário. Apenas a sala será alterada.`
+      )) return;
+
+      missingRooms.forEach(roomId => {
+        movies.push({
+          id: makeMovieId(),
+          title: sourceMovie.title,
+          roomId,
+          date: sourceMovie.date || "",
+          time: sourceMovie.time || ""
+        });
+      });
+
+      saveMoviesState();
+      renderDashboard();
+      renderMovieAdminList();
+
+      alert(
+        `${missingRooms.length} cópia(s) criada(s). "${sourceMovie.title}" agora está cadastrado em todas as 5 salas.`
+      );
+    }
+
+    function editMovie(movieId) {
+      if (!isAdmin) return;
+      const movie = getMovie(movieId);
+      if (!movie) return;
+      editingMovieId = movieId;
+      document.getElementById("movieTitleInput").value = movie.title || "";
+      document.getElementById("movieRoomInput").value = String(movie.roomId);
+      document.getElementById("movieDateInput").value = movie.date || "";
+      document.getElementById("movieTimeInput").value = movie.time || "";
+      document.getElementById("movieSaveBtn").innerText = "Salvar alterações";
+      document.getElementById("movieTitleInput").focus();
+    }
+
+
+    function openDuplicateMovie(movieId) {
+      if (!isAdmin) return;
+
+      const movie = getMovie(movieId);
+      if (!movie) return;
+
+      duplicatingMovieId = movieId;
+
+      document.getElementById("duplicateMovieName").innerText =
+        `${movie.title} • ${roomConfigs[movie.roomId]?.name || ""}`;
+
+      const select = document.getElementById("duplicateRoomSelect");
+      let suggested = movie.roomId < 5 ? movie.roomId + 1 : 1;
+      select.value = String(suggested);
+
+      document.getElementById("duplicateMovieModal").style.display = "flex";
+    }
+
+    function confirmDuplicateMovie() {
+      if (!isAdmin || !duplicatingMovieId) return;
+
+      const sourceMovie = getMovie(duplicatingMovieId);
+      if (!sourceMovie) return;
+
+      const newRoomId = Number(document.getElementById("duplicateRoomSelect").value);
+
+      if (!roomConfigs[newRoomId]) {
+        alert("Selecione uma sala válida.");
+        return;
+      }
+
+      if (newRoomId === sourceMovie.roomId) {
+        alert("Escolha uma sala diferente da sala original.");
+        return;
+      }
+
+      movies.push({
+        id: makeMovieId(),
+        title: sourceMovie.title,
+        roomId: newRoomId,
+        date: sourceMovie.date || "",
+        time: sourceMovie.time || ""
+      });
+
+      saveMoviesState();
+
+      duplicatingMovieId = null;
+      closeModal("duplicateMovieModal");
+      renderDashboard();
+      renderMovieAdminList();
+
+      alert(`Filme duplicado para ${roomConfigs[newRoomId].name}.`);
+    }
+
+    function deleteMovie(movieId) {
+      if (!isAdmin) return;
+      const movie = getMovie(movieId);
+      if (!movie) return;
+
+      const booked = movieTaken(movieId);
+      const warning = booked
+        ? `Este filme possui ${booked} assento(s) reservado(s). Ao excluir o filme, essas reservas também serão apagadas.`
+        : "Deseja excluir este filme?";
+
+      if (!confirm(warning)) return;
+
+      movies = movies.filter(m => m.id !== movieId);
+      delete seatsState[movieId];
+      saveMoviesState();
+      localStorage.setItem(SEATS_KEY, JSON.stringify(seatsState));
+      if (editingMovieId === movieId) resetMovieForm();
+      renderDashboard();
+      renderMovieAdminList();
+    }
+
+    function renderMovieAdminList() {
+      const list = document.getElementById("movieAdminList");
+      if (!list) return;
+      list.innerHTML = "";
+
+      if (!movies.length) {
+        list.innerHTML = '<div class="empty-movies">Nenhum filme cadastrado. Use o formulário acima para adicionar o primeiro.</div>';
+        return;
+      }
+
+      movies.forEach(movie => {
+        const item = document.createElement("div");
+        item.className = "movie-admin-item";
+        const dateText = formatMovieDate(movie) || "Data não definida";
+        item.innerHTML = `
+          <div>
+            <div class="movie-admin-title">${escapeHtml(movie.title)}</div>
+            <div class="movie-admin-meta">${dateText}</div>
+          </div>
+          <div class="movie-admin-meta">${roomConfigs[movie.roomId]?.name || "Sala"}</div>
+          <div class="movie-admin-meta">${movieTaken(movie.id)} reservado(s)</div>
+          <div class="movie-admin-actions">
+            <button class="btn-mini" onclick="openDuplicateMovie('${movie.id}')">Duplicar</button>
+            <button class="btn-mini" onclick="editMovie('${movie.id}')">Editar</button>
+            <button class="btn-mini danger" onclick="deleteMovie('${movie.id}')">Excluir</button>
+          </div>
+        `;
+        list.appendChild(item);
+      });
+    }
+
+    function escapeHtml(value) {
+      return String(value || "")
+        .replaceAll("&","&amp;")
+        .replaceAll("<","&lt;")
+        .replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;")
+        .replaceAll("'","&#039;");
+    }
+
+    function getDescriptor(row, token, counters) {
+      if (token === "") return null;
+
+      let type = "regular";
+      let id = "";
+      let label = "";
+      let display = token;
+
+      if (/^l\d+$/.test(token)) {
+        type = "love";
+        const n = token.slice(1);
+        id = `${row}-L${n}`;
+        label = `${row} ${n}`;
+        display = "♡";
+      } else if (token === "w") {
+        type = "wheelchair";
+        counters.w = (counters.w || 0) + 1;
+        id = `${row}-W${counters.w}`;
+        label = `${row} ♿${counters.w}`;
+        display = "♿";
+      } else if (token === "ac") {
+        type = "companion";
+        counters.ac = (counters.ac || 0) + 1;
+        id = `${row}-AC${counters.ac}`;
+        label = `${row} AC${counters.ac}`;
+        display = "AC";
+      } else if (token === "rs") {
+        type = "rs";
+        counters.rs = (counters.rs || 0) + 1;
+        id = `${row}-RS${counters.rs}`;
+        label = `${row} RS${counters.rs}`;
+        display = "RS";
+      } else if (token === "i") {
+        type = "obese";
+        counters.i = (counters.i || 0) + 1;
+        id = `${row}-I${counters.i}`;
+        label = `${row} Especial ${counters.i}`;
+        display = "👥";
+      } else {
+        id = `${row}-${token}`;
+        label = `${row} ${token}`;
+        display = token;
+      }
+
+      return { id, label, display, type, row, token };
+    }
+
+    function buildIndex(roomId) {
+      const idx = {};
+      roomConfigs[roomId].rows.forEach(row => {
+        const counters = {};
+        (seatLayouts[roomId][row] || []).forEach(token => {
+          const d = getDescriptor(row, token, counters);
+          if (d) idx[d.id] = d;
+        });
+      });
+      return idx;
+    }
+
+    function movieTaken(movieId) {
+      ensureMovieState(movieId);
+      return Object.values(seatsState[movieId]).filter(v => v && v.owner).length;
+    }
+
+    function renderDashboard() {
+      const grid = document.getElementById("roomsGrid");
+      grid.innerHTML = "";
+
+      let totalCapacity = 0;
+      let totalTaken = 0;
+
+      movies.forEach(movie => {
+        const cfg = roomConfigs[movie.roomId];
+        if (!cfg) return;
+
+        const taken = movieTaken(movie.id);
+        const free = Math.max(0, cfg.cap - taken);
+        totalCapacity += cfg.cap;
+        totalTaken += taken;
+
+        const dateLine = formatMovieDate(movie);
+        const card = document.createElement("article");
+        card.className = "room-card";
+        card.innerHTML = `
+          <div>
+            <div class="room-head">
+              <div>
+                <div class="room-title">${escapeHtml(movie.title)}</div>
+                <div class="room-film">${cfg.name}</div>
+                ${dateLine ? `<div class="movie-date-line">${dateLine}</div>` : ""}
+              </div>
+              <span class="cap">${cfg.cap} lugares</span>
+            </div>
+            <ul class="stats">
+              <li><span>Livres</span><b style="color:var(--green)">${free}</b></li>
+              <li><span>Reservados / VIPs</span><b style="color:var(--red)">${taken}</b></li>
+            </ul>
+          </div>
+          <button class="btn-gold" onclick="openMap('${movie.id}')">${isAdmin ? "👑 Gerenciar assentos" : "Ver mapa e reservar"}</button>
+        `;
+        grid.appendChild(card);
+      });
+
+      if (!movies.length) {
+        grid.innerHTML = '<div class="empty-movies" style="grid-column:1/-1">Nenhum filme disponível no momento.</div>';
+      }
+
+      document.querySelector(".kpi-grid .kpi:first-child small").innerText = "Filmes cadastrados";
+      document.querySelector(".kpi-grid .kpi:first-child strong").innerText = movies.length;
+      document.getElementById("kTotal").innerText = totalCapacity;
+      document.getElementById("kFree").innerText = Math.max(0, totalCapacity - totalTaken);
+      document.getElementById("kTaken").innerText = totalTaken;
+    }
+
+    function toggleAdmin() {
+      if (isAdmin) {
+        isAdmin = false;
+        document.getElementById("adminBtn").classList.remove("active");
+        document.getElementById("adminBtn").innerText = "🔒 Modo Organizador";
+        document.getElementById("adminMoviesPanel").classList.remove("active");
+        resetMovieForm();
+        renderDashboard();
+        return;
+      }
+      document.getElementById("adminPass").value = "";
+      document.getElementById("loginModal").style.display = "flex";
+    }
+
+    function authenticateAdmin() {
+      const key = "estreias_sp_pin_exato";
+      const val = document.getElementById("adminPass").value.trim();
+      if (!/^\d{4,8}$/.test(val)) {
+        alert("Use um PIN numérico de 4 a 8 dígitos.");
+        return;
+      }
+      const saved = localStorage.getItem(key);
+      if (!saved) {
+        localStorage.setItem(key, val);
+      } else if (saved !== val) {
+        alert("PIN incorreto.");
+        return;
+      }
+
+      isAdmin = true;
+      closeModal("loginModal");
+      document.getElementById("adminBtn").classList.add("active");
+      document.getElementById("adminBtn").innerText = "👑 Organizador ativo";
+      document.getElementById("adminMoviesPanel").classList.add("active");
+      renderDashboard();
+      renderMovieAdminList();
+    }
+
+    function openMap(movieId) {
+      const movie = getMovie(movieId);
+      if (!movie) return;
+
+      activeMovieId = movieId;
+      activeRoom = movie.roomId;
+      selectedSeats = [];
+      ensureMovieState(movieId);
+
+      document.getElementById("modalRoom").innerText = movie.title;
+      const dateText = formatMovieDate(movie);
+      document.getElementById("modalFilm").innerText =
+        `${roomConfigs[activeRoom].name}${dateText ? " • " + dateText : ""}`;
+
+      document.getElementById("selectedLabel").innerText = "Clique em uma poltrona";
+      document.getElementById("statusLabel").innerText = "Selecione um assento";
+      document.getElementById("statusLabel").style.color = "var(--muted)";
+      renderGuestInputs();
+      document.getElementById("releaseBtn").style.display = "none";
+      document.getElementById("adminIndicator").style.display = isAdmin ? "block" : "none";
+      document.getElementById("exportBtn").style.display = isAdmin ? "block" : "none";
+      document.getElementById("guestNamesGroup").style.display = isAdmin ? "none" : "";
+      document.getElementById("adminNoNameNote").style.display = isAdmin ? "block" : "none";
+      document.getElementById("confirmSeatBtn").innerText = isAdmin ? "Reservar assentos" : "Confirmar assento";
+      document.getElementById("selectAllSeatsBtn").style.display = isAdmin ? "block" : "none";
+      document.getElementById("selectAllSeatsBtn").innerText = "Selecionar todos";
+      document.getElementById("mapNote").innerText = "Boa sessão!";
+      renderMap();
+      document.getElementById("mapModal").style.display = "flex";
+    }
+
+    function createSeatEl(desc, booking) {
+      const el = document.createElement("button");
+      el.className = "seat";
+      if (!desc) {
+        el.classList.add("empty");
+        return el;
+      }
+      el.innerText = desc.display;
+      if (desc.type !== "regular") el.classList.add(desc.type);
+      if (booking?.owner) el.classList.add("taken");
+      if (selectedSeats.includes(desc.id)) el.classList.add("selected");
+      el.title = booking?.owner && isAdmin ? `${desc.label}: ${booking.owner}` : desc.label;
+      el.onclick = () => selectSeat(desc.id);
+      return el;
+    }
+
+    function renderMap() {
+      const wrap = document.getElementById("mapInner");
+      wrap.innerHTML = "";
+      const roomRows = roomConfigs[activeRoom].rows;
+      const roomData = seatLayouts[activeRoom];
+
+      roomRows.forEach(row => {
+        const rowEl = document.createElement("div");
+        rowEl.className = "map-row";
+
+        const left = document.createElement("div");
+        left.className = "row-label";
+        left.innerText = row;
+        rowEl.appendChild(left);
+
+        const seatsBox = document.createElement("div");
+        seatsBox.className = "row-seats";
+
+        const counters = {};
+        (roomData[row] || []).forEach(token => {
+          const desc = getDescriptor(row, token, counters);
+          const booking = desc ? seatsState[activeMovieId]?.[desc.id] : null;
+          seatsBox.appendChild(createSeatEl(desc, booking));
+        });
+
+        rowEl.appendChild(seatsBox);
+
+        const right = document.createElement("div");
+        right.className = "row-label";
+        right.innerText = row;
+        rowEl.appendChild(right);
+        wrap.appendChild(rowEl);
+      });
+
+      const screenRow = document.createElement("div");
+      screenRow.className = "screen-row";
+      const gap = document.createElement("div");
+      gap.className = "screen-gap";
+      screenRow.appendChild(gap);
+
+      const screenBox = document.createElement("div");
+      screenBox.className = "screen-box";
+
+      if (activeRoom !== 2) {
+        const small = document.createElement("div");
+        small.className = "screen-small-row";
+        const count = activeRoom === 1 ? 14 : activeRoom === 5 ? 4 : 6;
+        for (let i = 1; i <= count; i++) {
+          const s = document.createElement("div");
+          s.className = "screen-seat";
+          s.innerText = i;
+          small.appendChild(s);
+        }
+        screenBox.appendChild(small);
+      }
+
+      const bar = document.createElement("div");
+      bar.className = "screen-bar";
+      bar.innerText = "Tela";
+      screenBox.appendChild(bar);
+      screenRow.appendChild(screenBox);
+
+      const gap2 = document.createElement("div");
+      gap2.className = "screen-gap";
+      screenRow.appendChild(gap2);
+      wrap.appendChild(screenRow);
+    }
+
+    function renderGuestInputs() {
+      const container = document.getElementById("guestInputsContainer");
+      if (!container) return;
+
+      if (isAdmin) {
+        container.innerHTML = "";
+        return;
+      }
+
+      const existingValues = {};
+      container.querySelectorAll("input[data-seat-id]").forEach(input => {
+        existingValues[input.dataset.seatId] = input.value;
+      });
+
+      container.innerHTML = "";
+      if (!selectedSeats.length) {
+        container.innerHTML = '<div class="note">Selecione um ou mais assentos para preencher os nomes.</div>';
+        return;
+      }
+
+      const index = buildIndex(activeRoom);
+      selectedSeats.forEach((seatId, i) => {
+        const d = index[seatId];
+        const currentBooking = seatsState[activeMovieId]?.[seatId];
+
+        const row = document.createElement("div");
+        row.className = "guest-seat-row";
+
+        const tag = document.createElement("div");
+        tag.className = "guest-seat-tag";
+        tag.innerText = `${i + 1}. ${d?.label || seatId}`;
+
+        const input = document.createElement("input");
+        input.type = "text";
+        input.dataset.seatId = seatId;
+        input.placeholder = `Nome do convidado do assento ${d?.label || seatId}`;
+
+        if (existingValues[seatId] !== undefined) {
+          input.value = existingValues[seatId];
+        } else if (isAdmin && currentBooking?.owner) {
+          input.value = currentBooking.owner;
+        }
+
+        row.appendChild(tag);
+        row.appendChild(input);
+        container.appendChild(row);
+      });
+    }
+
+
+    function toggleSelectAllSeats() {
+      if (!isAdmin || !activeMovieId) return;
+
+      const allSeatIds = Object.keys(buildIndex(activeRoom));
+
+      if (!allSeatIds.length) {
+        alert("Não há assentos disponíveis neste mapa.");
+        return;
+      }
+
+      const allSelected = allSeatIds.every(id => selectedSeats.includes(id));
+
+      if (allSelected) {
+        selectedSeats = [];
+      } else {
+        selectedSeats = [...allSeatIds];
+      }
+
+      const labels = selectedSeats
+        .map(id => buildIndex(activeRoom)[id]?.label)
+        .filter(Boolean);
+
+      document.getElementById("selectedLabel").innerText =
+        labels.length ? `${labels.length} assentos selecionados` : "Clique em uma poltrona";
+
+      const occupiedSelected = selectedSeats.filter(
+        id => seatsState[activeMovieId]?.[id]?.owner
+      ).length;
+
+      if (!selectedSeats.length) {
+        document.getElementById("statusLabel").innerText = "---";
+        document.getElementById("statusLabel").style.color = "var(--muted)";
+      } else {
+        document.getElementById("statusLabel").innerText =
+          occupiedSelected
+            ? `${selectedSeats.length} selecionados • ${occupiedSelected} já reservados`
+            : `${selectedSeats.length} selecionados`;
+
+        document.getElementById("statusLabel").style.color =
+          occupiedSelected ? "var(--gold)" : "var(--green)";
+      }
+
+      document.getElementById("releaseBtn").style.display =
+        occupiedSelected ? "block" : "none";
+
+      document.getElementById("selectAllSeatsBtn").innerText =
+        allSelected ? "Selecionar todos" : "Desmarcar todos";
+
+      renderGuestInputs();
+      renderMap();
+    }
+
+    function selectSeat(id) {
+      const booking = seatsState[activeMovieId]?.[id];
+
+      if (booking?.owner && !isAdmin) {
+        alert("Este assento já está reservado.");
+        return;
+      }
+
+      if (selectedSeats.includes(id)) {
+        selectedSeats = selectedSeats.filter(s => s !== id);
+      } else {
+        selectedSeats.push(id);
+      }
+
+      const labels = selectedSeats.map(s => buildIndex(activeRoom)[s]?.label).filter(Boolean);
+      document.getElementById("selectedLabel").innerText =
+        labels.length ? labels.join(", ") : "Clique em uma poltrona";
+
+      const occupiedSelected = selectedSeats.filter(s => seatsState[activeMovieId]?.[s]?.owner).length;
+
+      if (!selectedSeats.length) {
+        document.getElementById("statusLabel").innerText = "---";
+        document.getElementById("statusLabel").style.color = "var(--muted)";
+      } else if (occupiedSelected) {
+        document.getElementById("statusLabel").innerText = `${occupiedSelected} ocupado(s) na seleção`;
+        document.getElementById("statusLabel").style.color = "var(--red)";
+      } else {
+        document.getElementById("statusLabel").innerText = `${selectedSeats.length} selecionado(s)`;
+        document.getElementById("statusLabel").style.color = "var(--green)";
+      }
+
+      document.getElementById("releaseBtn").style.display =
+        isAdmin && occupiedSelected ? "block" : "none";
+
+      renderGuestInputs();
+      renderMap();
+    }
+
+    async function qrDataUrl(payload) {
+      const holder = document.createElement("div");
+      holder.style.position = "fixed";
+      holder.style.left = "-9999px";
+      holder.style.top = "-9999px";
+      holder.style.background = "#fff";
+      holder.style.padding = "4px";
+      document.body.appendChild(holder);
+
+      new QRCode(holder, {
+        text: payload,
+        width: 260,
+        height: 260,
+        correctLevel: QRCode.CorrectLevel.M
+      });
+
+      await new Promise(resolve => setTimeout(resolve, 80));
+      let dataUrl = "";
+      const canvas = holder.querySelector("canvas");
+      const img = holder.querySelector("img");
+
+      if (canvas) {
+        dataUrl = canvas.toDataURL("image/png");
+      } else if (img) {
+        if (!img.complete) {
+          await new Promise(resolve => {
+            img.onload = resolve;
+            img.onerror = resolve;
+          });
+        }
+        dataUrl = img.src;
+      }
+
+      holder.remove();
+      return dataUrl;
+    }
+
+    async function downloadTicketsPdf(tickets, movie) {
+      if (!window.jspdf || !window.jspdf.jsPDF) {
+        alert("Não foi possível gerar o PDF automaticamente neste navegador.");
+        return false;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a6"
+      });
+
+      const roomName = roomConfigs[movie.roomId].name;
+
+      for (let i = 0; i < tickets.length; i++) {
+        if (i > 0) doc.addPage("a6", "portrait");
+        const ticket = tickets[i];
+
+        const qrPayload = JSON.stringify({
+          bookingId: ticket.bookingId,
+          movieId: movie.id,
+          movie: movie.title,
+          guest: ticket.name || "",
+          room: roomName,
+          seat: ticket.label,
+          adminReservation: !ticket.name
+        });
+
+        const qr = await qrDataUrl(qrPayload);
+
+        doc.setFillColor(13,13,17);
+        doc.rect(0,0,105,148,"F");
+        doc.setDrawColor(212,175,55);
+        doc.setLineWidth(.8);
+        doc.roundedRect(7,7,91,134,4,4);
+
+        doc.setTextColor(212,175,55);
+        doc.setFont("helvetica","bold");
+        doc.setFontSize(15);
+        doc.text("PREMIERE PASS",52.5,17,{align:"center"});
+
+        doc.setTextColor(255,255,255);
+        doc.setFontSize(9);
+        const movieLines = doc.splitTextToSize(movie.title,80);
+        doc.text(movieLines,52.5,25,{align:"center"});
+
+        if (qr) doc.addImage(qr,"PNG",28.5,37,48,48);
+
+        doc.setFontSize(11);
+        const guestLines = doc.splitTextToSize(ticket.name,80);
+        doc.text(guestLines,52.5,94,{align:"center"});
+
+        doc.setTextColor(212,175,55);
+        doc.setFontSize(9);
+        doc.text(`${roomName} • ${ticket.label}`,52.5,108,{align:"center"});
+
+        doc.setTextColor(145,145,145);
+        doc.setFont("helvetica","normal");
+        doc.setFontSize(7);
+        const dateText = formatMovieDate(movie);
+        if (dateText) doc.text(dateText,52.5,116,{align:"center"});
+        doc.text(`Reserva ${ticket.bookingId}`,52.5,123,{align:"center"});
+        doc.setFontSize(6.5);
+        doc.text("Apresente este QR Code na entrada.",52.5,133,{align:"center"});
+      }
+
+      const safeName = movie.title.replace(/[^\wÀ-ÿ-]+/g,"_");
+      doc.save(`Ingressos_${safeName}.pdf`);
+      return true;
+    }
+
+    async function reserveSeat() {
+      const movie = getMovie(activeMovieId);
+      if (!movie) return;
+
+      if (!selectedSeats.length) {
+        alert("Selecione pelo menos um assento.");
+        return;
+      }
+
+
+      ensureMovieState(activeMovieId);
+
+      if (isAdmin) {
+        const occupiedAdmin = selectedSeats.filter(
+          id => seatsState[activeMovieId][id]?.owner
+        );
+
+        if (occupiedAdmin.length) {
+          const ok = confirm(
+            `Há ${occupiedAdmin.length} assento(s) já reservado(s). Reservar apenas os livres?`
+          );
+          if (!ok) return;
+        }
+
+        const index = buildIndex(activeRoom);
+        const adminTickets = [];
+
+        selectedSeats.forEach((seatId, i) => {
+          if (seatsState[activeMovieId][seatId]?.owner) return;
+
+          const bookingId =
+            "ESP-ADM-" +
+            Date.now().toString(36).toUpperCase() +
+            "-" +
+            (i + 1) +
+            "-" +
+            Math.random().toString(36).slice(2,6).toUpperCase();
+
+          seatsState[activeMovieId][seatId] = {
+            owner: "Reserva Admin",
+            bookingId,
+            createdAt: new Date().toISOString(),
+            reservedByAdmin: true
+          };
+
+          adminTickets.push({
+            seatId,
+            label: index[seatId]?.label || seatId,
+            bookingId,
+            name: ""
+          });
+        });
+
+        saveState();
+
+        // Gera um ingresso e um QR Code exclusivo para cada assento reservado pelo admin.
+        if (adminTickets.length) {
+          const container = document.getElementById("ticketsContainer");
+          container.innerHTML = "";
+
+          adminTickets.forEach((ticket, idx) => {
+            const card = document.createElement("div");
+            card.className = "ticket-unit";
+            card.innerHTML = `
+              <h4>PREMIERE PASS</h4>
+              <div style="font-size:.72rem;color:var(--muted)">
+                Ingresso ${idx + 1} de ${adminTickets.length}
+              </div>
+              <div style="margin-top:7px;font-weight:800">${escapeHtml(movie.title)}</div>
+              <div class="ticket-qr" id="qr-admin-${idx}"></div>
+              <div class="ticket-seat">${roomConfigs[activeRoom].name} • ${ticket.label}</div>
+              <div class="ticket-id">Reserva ${ticket.bookingId}</div>
+            `;
+            container.appendChild(card);
+
+            const qrPayload = JSON.stringify({
+              bookingId: ticket.bookingId,
+              movieId: movie.id,
+              movie: movie.title,
+              room: roomConfigs[activeRoom].name,
+              seat: ticket.label,
+              adminReservation: true
+            });
+
+            if (window.QRCode) {
+              new QRCode(document.getElementById(`qr-admin-${idx}`), {
+                text: qrPayload,
+                width: 140,
+                height: 140,
+                correctLevel: QRCode.CorrectLevel.M
+              });
+            }
+          });
+
+          document.getElementById("ticketModal").style.display = "flex";
+          const statusEl = document.getElementById("downloadStatus");
+          if (statusEl) statusEl.innerText = "Gerando PDF dos ingressos...";
+
+          try {
+            // Reutiliza o gerador de PDF existente. O nome fica vazio no ingresso do admin.
+            const ok = await downloadTicketsPdf(adminTickets, movie);
+
+            if (statusEl) {
+              statusEl.innerText = ok
+                ? "Download iniciado automaticamente. Esta janela será fechada."
+                : "Não foi possível iniciar o download automático.";
+            }
+
+            if (ok) {
+              setTimeout(() => closeModal("ticketModal"), 1400);
+            }
+          } catch (err) {
+            console.error(err);
+            if (statusEl) {
+              statusEl.innerText = "Não foi possível gerar o arquivo automaticamente.";
+            }
+          }
+        }
+
+        selectedSeats = [];
+        document.getElementById("selectedLabel").innerText = "Clique em uma poltrona";
+        document.getElementById("statusLabel").innerText = "---";
+        document.getElementById("statusLabel").style.color = "var(--muted)";
+        document.getElementById("releaseBtn").style.display = "none";
+        document.getElementById("selectAllSeatsBtn").innerText = "Selecionar todos";
+        renderGuestInputs();
+        renderMap();
+
+        return;
+      }
+
+      const inputs = [...document.querySelectorAll("#guestInputsContainer input[data-seat-id]")];
+      const guests = inputs.map(input => ({
+        seatId: input.dataset.seatId,
+        name: input.value.trim()
+      }));
+
+      const missing = guests.filter(g => !g.name);
+      if (missing.length) {
+        alert(`Preencha o nome de todos os convidados. Faltam ${missing.length} nome(s).`);
+        return;
+      }
+
+      const occupied = guests.filter(g => seatsState[activeMovieId][g.seatId]?.owner);
+
+      if (occupied.length && !isAdmin) {
+        alert("Um ou mais assentos selecionados já estão reservados.");
+        return;
+      }
+
+      if (occupied.length && isAdmin) {
+        const ok = confirm(`Há ${occupied.length} assento(s) ocupado(s) na seleção. Deseja substituir as reservas?`);
+        if (!ok) return;
+      }
+
+      const index = buildIndex(activeRoom);
+      const createdTickets = [];
+
+      guests.forEach((guest,i) => {
+        const bookingId =
+          "ESP-" +
+          Date.now().toString(36).toUpperCase() +
+          "-" + (i + 1) + "-" +
+          Math.random().toString(36).slice(2,6).toUpperCase();
+
+        seatsState[activeMovieId][guest.seatId] = {
+          owner: guest.name,
+          bookingId,
+          createdAt: new Date().toISOString()
+        };
+
+        createdTickets.push({
+          seatId: guest.seatId,
+          label: index[guest.seatId]?.label || guest.seatId,
+          bookingId,
+          name: guest.name
+        });
+      });
+
+      saveState();
+      renderMap();
+
+      if (!isAdmin) {
+        const container = document.getElementById("ticketsContainer");
+        container.innerHTML = "";
+
+        createdTickets.forEach((ticket,idx) => {
+          const card = document.createElement("div");
+          card.className = "ticket-unit";
+          card.innerHTML = `
+            <h4>PREMIERE PASS</h4>
+            <div style="font-size:.72rem;color:var(--muted)">Ingresso ${idx+1} de ${createdTickets.length}</div>
+            <div style="margin-top:7px;font-weight:800">${escapeHtml(movie.title)}</div>
+            <div class="ticket-qr" id="qr-${idx}"></div>
+            <h3 style="margin-top:8px">${escapeHtml(ticket.name)}</h3>
+            <div class="ticket-seat">${roomConfigs[activeRoom].name} • ${ticket.label}</div>
+            <div class="ticket-id">Reserva ${ticket.bookingId}</div>
+          `;
+          container.appendChild(card);
+
+          const qrPayload = JSON.stringify({
+            bookingId: ticket.bookingId,
+            movieId: movie.id,
+            movie: movie.title,
+            guest: ticket.name,
+            room: roomConfigs[activeRoom].name,
+            seat: ticket.label
+          });
+
+          if (window.QRCode) {
+            new QRCode(document.getElementById(`qr-${idx}`), {
+              text: qrPayload,
+              width:140,
+              height:140,
+              correctLevel:QRCode.CorrectLevel.M
+            });
+          }
+        });
+
+        document.getElementById("ticketModal").style.display = "flex";
+        const statusEl = document.getElementById("downloadStatus");
+        if (statusEl) statusEl.innerText = "Gerando PDF dos ingressos...";
+
+        try {
+          const ok = await downloadTicketsPdf(createdTickets, movie);
+          if (statusEl) {
+            statusEl.innerText = ok
+              ? "Download iniciado automaticamente. Esta janela será fechada."
+              : "Não foi possível iniciar o download automático.";
+          }
+          if (ok) setTimeout(() => closeModal("ticketModal"),1400);
+        } catch (err) {
+          console.error(err);
+          if (statusEl) statusEl.innerText = "Não foi possível gerar o arquivo automaticamente.";
+        }
+      } else {
+        alert(`${createdTickets.length} assento(s) atribuídos com sucesso.`);
+      }
+
+      selectedSeats = [];
+      document.getElementById("selectedLabel").innerText = "Clique em uma poltrona";
+      document.getElementById("statusLabel").innerText = "---";
+      document.getElementById("statusLabel").style.color = "var(--muted)";
+      document.getElementById("releaseBtn").style.display = "none";
+      renderGuestInputs();
+      renderMap();
+    }
+
+    function releaseSeat() {
+      if (!isAdmin || !selectedSeats.length || !activeMovieId) return;
+
+      const occupied = selectedSeats.filter(id => seatsState[activeMovieId]?.[id]?.owner);
+      if (!occupied.length) {
+        alert("Nenhum dos assentos selecionados está ocupado.");
+        return;
+      }
+
+      if (!confirm(`Liberar ${occupied.length} assento(s) selecionado(s)?`)) return;
+
+      occupied.forEach(id => delete seatsState[activeMovieId][id]);
+      selectedSeats = [];
+      saveState();
+      renderMap();
+
+      document.getElementById("selectedLabel").innerText = "Clique em uma poltrona";
+      document.getElementById("statusLabel").innerText = "---";
+      document.getElementById("statusLabel").style.color = "var(--muted)";
+      document.getElementById("releaseBtn").style.display = "none";
+      renderGuestInputs();
+    }
+
+    function exportCSV() {
+      const movie = getMovie(activeMovieId);
+      if (!movie) return;
+
+      const idx = buildIndex(activeRoom);
+      const room = roomConfigs[activeRoom];
+      let csv = "Filme,Assento,Status,Convidado,Sala\n";
+
+      Object.values(idx).forEach(desc => {
+        const b = seatsState[activeMovieId]?.[desc.id];
+        const owner = (b?.reservedByAdmin ? "Admin" : (b?.owner || "")).replaceAll('"','""');
+        const title = movie.title.replaceAll('"','""');
+        csv += `"${title}","${desc.label}","${owner ? "Reservado" : "Livre"}","${owner}","${room.name}"\n`;
+      });
+
+      const blob = new Blob(["\ufeff" + csv], {type:"text/csv;charset=utf-8"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Lista_VIP_${movie.title.replace(/[^\wÀ-ÿ-]+/g,"_")}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).style.display = "none";
+      if (id === "duplicateMovieModal") duplicatingMovieId = null;
+    }
+
+    renderDashboard();
+    renderMovieAdminList();
+  </script>
+</body>
+</html>
