@@ -580,6 +580,7 @@ svg{display:block}
   <footer class="statusbar">
     <span id="statusElement">AÇÃO</span>
     <span id="statusWords">0 palavras</span>
+    <span id="statusLyrics">0 letras</span>
     <span id="statusScenes">0 cenas</span>
     <div class="right">Ao escolher um elemento, ele permanece ativo até você trocar &nbsp; <span class="kbd">Automático</span> libera o modo fixo &nbsp; <span class="kbd">Ctrl+S</span> salvar</div>
   </footer>
@@ -3205,6 +3206,7 @@ function renderRightSidebar(){
   const scenes = allBlocks().filter(b => b.dataset.type === 'scene').length;
   const chars = allCharacters().length;
   const words = countWords();
+  const lyrics = countlyrics();
 
   root.innerHTML = `
     <div class="side-title">Informações</div>
@@ -3253,6 +3255,11 @@ function renderRightSidebar(){
       <div style="background:var(--soft);border-radius:9px;padding:10px">
         <b style="font-size:16px">${words}</b><br>
         <span style="font-size:10px;color:var(--muted)">PALAVRAS</span>
+      </div>
+
+      <div style="background:var(--soft);border-radius:9px;padding:10px">
+        <b style="font-size:16px">${lyrics}</b><br>
+        <span style="font-size:10px;color:var(--muted)">LETRAS</span>
       </div>
 
       <div style="background:var(--soft);border-radius:9px;padding:10px">
@@ -3314,9 +3321,11 @@ function countWords(){
 
 function updateStats(){
   const words = countWords();
+  const lyrics = countlyrics();
   const scenes = allBlocks().filter(b => b.dataset.type === 'scene').length;
 
   $('#statusWords').textContent = `${words} palavra${words===1?'':'s'}`;
+  $('#statuslyrics').textContent = `${lyrics} letras${lyrics===1?'':'s'}`;
   $('#statusScenes').textContent = `${scenes} cena${scenes===1?'':'s'}`;
 }
 
@@ -20351,6 +20360,16 @@ function creatorStats(){
     return total + (text ? text.split(/\s+/).filter(Boolean).length : 0);
   },0);
 
+  const lyrics = projects.reduce((total,p)=>{
+    const text = (p.blocks || []).map(b=>{
+      const temp = document.createElement('div');
+      temp.innerHTML = b.html || '';
+      return temp.innerText || temp.textContent || '';
+    }).join(' ').trim();
+
+    return total + (text ? text.split(/\s+/).filter(Boolean).length : 0);
+  },0);
+  
   const scenes = projects.reduce((total,p)=>{
     return total + (p.blocks || []).filter(b=>b.type === 'scene').length;
   },0);
@@ -20361,6 +20380,7 @@ function creatorStats(){
   return {
     projects: projects.length,
     words,
+    lyrics,
     scenes,
     series,
     films,
@@ -20503,6 +20523,10 @@ function showCreatorPanel(){
           <div class="creator-stat">
             <b>${s.words}</b>
             <span>PALAVRAS</span>
+          </div>
+          <div class="creator-stat">
+            <b>${s.lyrics}</b>
+            <span>LETRAS</span>
           </div>
           <div class="creator-stat">
             <b>${s.scenes}</b>
