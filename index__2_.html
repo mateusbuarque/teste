@@ -1611,7 +1611,7 @@ function createBlock(type='action', html='', id=uid()){
     character:'PERSONAGEM',
     parenthetical:'(baixo)',
     dialogue:'Diálogo…',
-    transition:'CORTA PARA:',
+    transition:'CORTE PARA:',
     shot:'CLOSE EM:',
     end:'FIM.'
   };
@@ -1778,7 +1778,7 @@ function setBlockType(el, type){
     character:'PERSONAGEM',
     parenthetical:'(baixo)',
     dialogue:'Diálogo…',
-    transition:'CORTA PARA:',
+    transition:'CORTE PARA:',
     shot:'CLOSE EM:',
     end:'FIM.'
   };
@@ -1878,7 +1878,7 @@ function smartSetBlockType(el,type,autoReason=''){
     character:'PERSONAGEM',
     parenthetical:'(sussurrando)',
     dialogue:'Escreva a fala…',
-    transition:'CORTA PARA:',
+    transition:'CORTE PARA:',
     shot:'CLOSE EM:',
     end:'FIM.'
   };
@@ -1944,7 +1944,7 @@ function smartDetectType(el){
   // 2. Transições mais comuns.
   if(
     ['action','transition'].includes(type) &&
-    /^(CORTA PARA:|CUT TO:|FADE IN:|FADE OUT:|DISSOLVE PARA:|DISSOLVE TO:|SMASH CUT TO:)$/.test(upper)
+    /^(CORTE PARA:|CUT TO:|FADE IN:|FADE OUT:|DISSOLVE PARA:|DISSOLVE TO:|SMASH CUT TO:)$/.test(upper)
   ){
     smartSetBlockType(el,'transition','transition');
     return;
@@ -3622,10 +3622,10 @@ function insertTransitionBlock(){
   let transitionBlock;
 
   if(anchor){
-    transitionBlock = insertBlockAfter(anchor,'transition','CORTA PARA:');
+    transitionBlock = insertBlockAfter(anchor,'transition','CORTE PARA:');
   }else{
     const page = allScriptPages()[0] || createAndAppendPage();
-    transitionBlock = createBlock('transition','CORTA PARA:');
+    transitionBlock = createBlock('transition','CORTE PARA:');
     page.appendChild(transitionBlock);
   }
 
