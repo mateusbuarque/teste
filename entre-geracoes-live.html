@@ -1,0 +1,2041 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Entre Gerações — Central da Live</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Inter:wght@400;600;800&family=Permanent+Marker&display=swap" rel="stylesheet">
+<style>
+:root{
+  --verde:#3dff2e; --verde-esc:#0f3d0a; --roxo:#8b3dff; --amarelo:#ffe62e; --vermelho:#ff2e4d;
+  --bg:#0a0d0a; --card:#131813; --card2:#1a211a; --borda:#253125; --texto:#e8f2e8; --suave:#8ea28e;
+  --xadrez:conic-gradient(#1d1d1d 25%,#262626 0 50%,#1d1d1d 0 75%,#262626 0) 0 0/20px 20px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--texto);font-family:Inter,system-ui,sans-serif;font-size:14px}
+button,input,select,textarea{font:inherit;color:inherit}
+[hidden]{display:none !important}
+
+/* ================= PAINEL ================= */
+.topo{position:sticky;top:0;z-index:20;display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+  padding:12px 20px;background:rgba(10,13,10,.94);backdrop-filter:blur(8px);border-bottom:2px solid var(--verde)}
+.marca{display:flex;align-items:baseline;gap:10px}
+.marca .m1{font-family:Bangers,Impact,sans-serif;font-size:30px;color:var(--verde);letter-spacing:.03em;text-shadow:2px 2px 0 #000,0 0 18px rgba(61,255,46,.35)}
+.marca .m2{font-family:'Permanent Marker',cursive;font-size:15px;background:#fff;color:#2a3bd1;padding:1px 10px;border-radius:20px;transform:rotate(3deg)}
+.topo-acoes{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.status{font-size:12px;color:var(--suave);padding:6px 10px;border:1px solid var(--borda);border-radius:20px}
+.status.ok{color:var(--verde);border-color:var(--verde)}
+.grade{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px;padding:16px 20px 40px;max-width:1500px;margin:0 auto;align-items:start}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.col-dir{position:sticky;top:76px}
+/* monitores (programa / modo estúdio) */
+.monitores{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;max-width:1000px;margin:16px auto 0;padding:0 20px}
+.monitores.estudio{grid-template-columns:minmax(0,1fr) 180px minmax(0,1fr);max-width:1500px}
+.monitores:not(.estudio) #monPreviaBox,.monitores:not(.estudio) #monAcoes{display:none}
+.monitor{background:var(--card);border:1px solid var(--borda);border-radius:14px;padding:12px 14px;min-width:0}
+.monitor.prog{border-color:rgba(255,46,77,.55)}
+.monitor.prev{border-color:rgba(255,230,46,.5)}
+.mon-cab{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;font-weight:700;min-height:30px}
+.mon-tag{font-size:10px;font-weight:800;letter-spacing:.1em;padding:4px 8px;border-radius:6px}
+.mon-tag.prev{background:var(--amarelo);color:#111}
+.mon-tag.ar{background:var(--vermelho);color:#fff}
+.mon-cab .btn{margin-left:auto}
+.btn.estudio-on{background:var(--roxo);border-color:var(--roxo);color:#fff}
+.mon-acoes{display:flex;flex-direction:column;justify-content:center;gap:8px;text-align:center}
+.mon-acoes .btn.verde{padding:16px 10px;font-size:16px}
+.mon-acoes .dica{margin:4px 0 0}
+.grade-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(420px,1fr));gap:16px;padding:16px 20px 40px;max-width:1500px;margin:0 auto;align-items:start}
+.span-tudo{grid-column:1/-1}
+.cena-btn.previa{border-color:var(--amarelo);box-shadow:0 0 0 3px rgba(255,230,46,.18)}
+.cena-btn.previa::after{content:'PRÉVIA';position:absolute;bottom:-9px;background:var(--amarelo);color:#111;font-size:9px;padding:2px 6px;border-radius:6px;letter-spacing:.08em}
+@media (max-width:900px){.monitores.estudio{grid-template-columns:1fr}.grade-cards{grid-template-columns:1fr}}
+.cena-btn.ativa::after{content:'NO AR';position:absolute;bottom:-9px;background:var(--vermelho);color:#fff;font-size:9px;padding:2px 6px;border-radius:6px;letter-spacing:.08em}
+.cena-btn.ativa{border-color:var(--verde)}
+/* abas */
+.abas{display:flex;gap:4px;background:var(--card);padding:4px;border-radius:12px;border:1px solid var(--borda)}
+.aba-btn{background:none;border:none;padding:8px 16px;border-radius:9px;cursor:pointer;font-weight:800;color:var(--suave);white-space:nowrap}
+.aba-btn:hover{color:var(--texto)}
+.aba-btn.on{background:var(--verde);color:#071007}
+.aba{display:none}
+.aba.on{display:block}
+/* mini pauta (aba controle) */
+.mini-pauta .agora{font-family:Bangers,Impact,sans-serif;font-size:26px;letter-spacing:.02em;line-height:1.1;margin:2px 0 4px}
+.mini-pauta .rot{font-size:10px;font-weight:800;letter-spacing:.1em;color:var(--suave);text-transform:uppercase}
+.mini-pauta .rot.ar{color:var(--vermelho)}
+.mini-pauta .seguir{font-size:13px;color:var(--suave);margin-bottom:10px}
+.mini-pauta .seguir b{color:var(--texto)}
+/* aba pauta */
+.pa-grade{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:16px;padding:16px 20px 40px;max-width:1500px;margin:0 auto;align-items:start}
+.pa-lado{display:flex;flex-direction:column;gap:16px;position:sticky;top:76px}
+.pa-prog{height:8px;background:var(--card2);border-radius:6px;overflow:hidden;margin:2px 0 10px}
+.pa-prog i{display:block;height:100%;width:0;background:var(--verde);transition:width .3s}
+.pa-resumo{display:flex;gap:16px;flex-wrap:wrap;font-size:12px;color:var(--suave);margin-bottom:12px}
+.pa-resumo b{color:var(--texto)}
+.pa-add{display:flex;gap:8px;margin-bottom:12px}
+.pa-add input{font-size:15px;padding:12px 14px}
+.pauta-lista{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px}
+.pi{display:flex;align-items:center;gap:10px;padding:10px 10px 10px 8px;background:var(--card2);border:1px solid var(--borda);border-radius:10px;cursor:pointer;transition:border-color .15s,background .15s;user-select:none}
+.pi:hover{border-color:#3d523d}
+.pi.sel{border-color:var(--roxo);box-shadow:0 0 0 2px rgba(139,61,255,.35)}
+.pi-alca{cursor:grab;color:var(--suave);font-size:18px;line-height:1;padding:0 2px}
+.pi-check{flex:none;width:26px;height:26px;border-radius:50%;border:2px solid #3d523d;background:none;color:transparent;cursor:pointer;font-weight:900;font-size:13px;padding:0}
+.pi-check:hover{border-color:var(--verde);color:var(--verde)}
+.pi.feito .pi-check{background:var(--verde);border-color:var(--verde);color:#071007}
+.pi-num{flex:none;font-family:Bangers,Impact,sans-serif;font-size:22px;color:var(--suave);min-width:24px;text-align:center}
+.pi-corpo{flex:1;min-width:0}
+.pi-txt{font-size:15px;font-weight:700;overflow-wrap:anywhere;line-height:1.3}
+.pi-notas{font-size:12px;color:var(--suave);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
+.pi.feito .pi-txt{text-decoration:line-through;color:var(--suave);font-weight:400}
+.pi-min{flex:none;font-size:11px;font-weight:700;background:#0b0f0b;border:1px solid var(--borda);border-radius:6px;padding:2px 7px;color:var(--suave)}
+.pi.noar{background:#16301a;border-color:var(--verde)}
+.pi.noar .pi-num{color:var(--verde)}
+.pi-ar{flex:none;font-size:12px;padding:6px 10px}
+.pi-del{flex:none;opacity:0;background:none;border:none;color:var(--suave);cursor:pointer;font-size:15px;padding:4px 6px;border-radius:6px}
+.pi:hover .pi-del{opacity:1}
+.pi-del:hover{color:var(--vermelho);background:#0006}
+@media (hover:none){.pi-del{opacity:1}}
+.pi.arrastando{opacity:.35}
+.pi.alvo-cima{box-shadow:0 -3px 0 var(--verde)}
+.pi.alvo-baixo{box-shadow:0 3px 0 var(--verde)}
+.pauta-vazia{text-align:center;color:var(--suave);padding:30px 10px;border:2px dashed var(--borda);border-radius:10px;font-size:14px;line-height:1.5}
+.pauta-vazia b{display:block;font-size:30px;margin-bottom:4px}
+.pa-rodape{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;padding-top:12px;border-top:1px solid var(--borda)}
+.pa-agora{border-color:var(--verde)}
+.pa-agora.vazio{border-color:var(--borda)}
+.pa-rot{font-size:11px;letter-spacing:.1em;font-weight:800;color:var(--suave);text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.pa-agora .pa-rot{color:var(--vermelho)}
+.pa-agora.vazio .pa-rot{color:var(--suave)}
+.pa-tit{font-family:Bangers,Impact,sans-serif;font-size:36px;line-height:1.05;margin:8px 0 4px;letter-spacing:.02em;overflow-wrap:anywhere}
+.pa-tempo{font-family:Bangers,Impact,sans-serif;font-size:24px;color:var(--verde);letter-spacing:.04em}
+.pa-tempo.estourou{color:var(--vermelho)}
+.pa-tempo small{font-family:Inter;font-size:12px;color:var(--suave);letter-spacing:0;margin-left:6px}
+.pa-notas{white-space:pre-wrap;background:var(--card2);border-radius:10px;padding:12px 14px;font-size:15px;line-height:1.55;margin:12px 0;max-height:280px;overflow:auto}
+.pa-notas:empty{display:none}
+.pa-botoes{display:grid;grid-template-columns:1fr 2fr 1fr;gap:8px}
+.pa-seguir .pa-tit{font-size:24px;margin:6px 0 0}
+.pa-seguir .pi-notas{white-space:normal}
+/* aba configurações */
+.cfg-grade{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;padding:16px 20px 40px;max-width:1300px;margin:0 auto;align-items:start}
+.cfg-col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.cores{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.apr-linha{display:grid;grid-template-columns:120px minmax(0,1fr) minmax(0,1fr) 140px auto;gap:6px;margin-bottom:6px;align-items:center}
+.apr-cab{font-size:11px;color:var(--suave);font-weight:700}
+.cfg-sub{font-size:12px;color:var(--suave);margin:-6px 0 12px;line-height:1.45}
+@media (max-width:1000px){.pa-grade,.cfg-grade{grid-template-columns:1fr}.pa-lado{position:static}.apr-linha{grid-template-columns:1fr 1fr}.apr-cab{display:none}}
+.card{background:var(--card);border:1px solid var(--borda);border-radius:14px;padding:14px 16px}
+.card h2{margin:0 0 12px;font-family:Bangers,Impact,sans-serif;font-weight:400;font-size:22px;letter-spacing:.04em;color:var(--verde);display:flex;align-items:center;gap:8px}
+.card h2 small{font-family:Inter;font-size:11px;color:var(--suave);letter-spacing:0;margin-left:auto;font-weight:600}
+.card h2 .btn{font-family:Inter;font-size:12px;letter-spacing:0;padding:5px 10px;margin-left:auto}
+label.campo{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--suave);font-weight:600;flex:1;min-width:0}
+input[type=text],input[type=number],input[type=time],select,textarea{background:var(--card2);border:1px solid var(--borda);border-radius:8px;padding:8px 10px;width:100%;outline:none}
+input[type=color]{width:100%;height:38px;padding:2px;background:var(--card2);border:1px solid var(--borda);border-radius:8px;cursor:pointer}
+input[type=range]{width:100%;accent-color:var(--verde)}
+input:focus,select:focus,textarea:focus{border-color:var(--verde)}
+textarea{resize:vertical;min-height:60px}
+.linha{display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:10px}
+.linha:last-child{margin-bottom:0}
+.btn{background:var(--card2);border:1px solid var(--borda);border-radius:8px;padding:8px 12px;cursor:pointer;font-weight:600;white-space:nowrap;transition:.15s}
+.btn:hover{border-color:var(--verde)}
+.btn:disabled{opacity:.4;cursor:default}
+.btn.verde{background:var(--verde);color:#071007;border-color:var(--verde)}
+.btn.verde:hover{filter:brightness(1.1)}
+.btn.vermelho{background:var(--vermelho);border-color:var(--vermelho);color:#fff}
+.btn.roxo{background:var(--roxo);border-color:var(--roxo);color:#fff}
+.btn.perigo:hover{border-color:var(--vermelho);color:var(--vermelho)}
+.btn.on{background:var(--verde);color:#071007;border-color:var(--verde)}
+.btn.grande{width:100%;padding:12px;font-size:15px}
+.btn.sm{padding:5px 9px;font-size:12px}
+.btn kbd{font-family:Inter;font-size:10px;font-weight:700;opacity:.75;margin-left:6px;border:1px solid currentColor;border-radius:4px;padding:0 4px}
+.chk{display:flex;align-items:center;gap:6px;font-size:13px;cursor:pointer;user-select:none}
+.chk input{accent-color:var(--verde);width:16px;height:16px}
+.dica{font-size:12px;color:var(--suave);margin:8px 0 0;line-height:1.45}
+
+.cenas{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.cena-item{position:relative}
+.cena-btn{position:relative;width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:16px 6px 12px;border-radius:12px;
+  background:var(--card2);border:2px solid var(--borda);cursor:pointer;font-weight:800;font-size:13px;text-align:center;overflow-wrap:anywhere}
+.cena-btn .ico{font-size:24px}
+.cena-btn kbd{position:absolute;top:5px;right:7px;font-size:10px;color:var(--suave);font-family:Inter}
+.cena-btn:hover{border-color:var(--verde)}
+.cena-btn.ativa{border-color:var(--verde);background:#16301a;box-shadow:0 0 0 3px rgba(61,255,46,.18)}
+.cena-btn .tipo{font-size:10px;font-weight:600;color:var(--suave)}
+.cena-edit{position:absolute;top:5px;left:5px;z-index:2;width:26px;height:26px;border-radius:7px;background:#0009;border:1px solid var(--borda);cursor:pointer;font-size:12px;padding:0}
+.cena-edit:hover{border-color:var(--roxo)}
+.cena-nova{border-style:dashed;color:var(--suave);min-height:92px}
+.cena-nova:hover{color:var(--verde)}
+.crono-cena{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:12px;padding-top:10px;border-top:1px solid var(--borda)}
+
+.preview-wrap{background:var(--xadrez);border-radius:10px;overflow:hidden;border:1px solid var(--borda)}
+.preview{position:relative;width:100%;aspect-ratio:16/9;overflow:hidden}
+.cronos{display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap}
+.cronos b{font-family:Bangers,Impact,sans-serif;font-size:30px;color:var(--verde);letter-spacing:.05em;min-width:100px}
+.presets{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.logo-mini{width:54px;height:54px;object-fit:contain;background:#000;border-radius:8px;border:1px solid var(--borda)}
+
+
+/* ajuda */
+dialog#ajuda{background:var(--card);color:var(--texto);border:1px solid var(--verde);border-radius:16px;padding:0;max-width:660px;width:calc(100% - 32px)}
+dialog#ajuda::backdrop{background:rgba(0,0,0,.72);backdrop-filter:blur(3px)}
+.aj-topo{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:14px 18px;border-bottom:1px solid var(--borda)}
+.aj-topo h3{margin:0;font-family:Bangers,Impact,sans-serif;font-weight:400;font-size:26px;letter-spacing:.04em;color:var(--verde)}
+.aj-corpo{padding:16px 18px 20px;max-height:76vh;overflow:auto}
+.aj-corpo h4{margin:18px 0 10px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--suave)}
+.aj-corpo h4:first-child{margin-top:0}
+.teclas{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.tecla{display:flex;align-items:center;gap:12px;background:var(--card2);border:1px solid var(--borda);border-radius:10px;padding:10px 12px;font-size:14px}
+.tecla kbd{flex:none;min-width:42px;text-align:center;font-family:Bangers,Impact,sans-serif;font-size:22px;letter-spacing:.04em;background:#0b0f0b;
+  border:1px solid var(--borda);border-bottom-width:3px;border-radius:8px;padding:2px 8px;color:var(--verde)}
+.passos{margin:0;padding-left:22px;line-height:1.6;color:#cfdccf}
+.passos li{margin-bottom:6px}
+.aj-corpo code{background:var(--card2);padding:1px 5px;border-radius:4px;font-size:12px}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%) translateY(120px);background:var(--verde);color:#071007;font-weight:800;
+  padding:10px 18px;border-radius:30px;transition:.3s;z-index:99;max-width:90vw;text-align:center}
+.toast.on{transform:translateX(-50%) translateY(0)}
+@media (max-width:1000px){.grade{grid-template-columns:1fr}.col-dir{position:static;order:-1}}
+@media (max-width:560px){.grade{padding:12px}.teclas{grid-template-columns:1fr}}
+
+/* ================= ESTÚDIO DE CENAS ================= */
+#estudio{position:fixed;inset:0;z-index:60;background:var(--bg);display:flex;flex-direction:column}
+.es-topo{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:10px 16px;border-bottom:2px solid var(--roxo);background:#0e120e}
+.es-topo h3{margin:0;font-family:Bangers,Impact,sans-serif;font-weight:400;font-size:26px;letter-spacing:.04em;color:#c7a6ff}
+.es-topo .nome-cena{font-weight:800;font-size:15px;padding:4px 10px;background:var(--card2);border-radius:8px}
+.es-corpo{flex:1;min-height:0;display:grid;grid-template-columns:210px minmax(0,1fr) 340px}
+.es-col{min-height:0;overflow:auto;padding:14px 12px;background:var(--card)}
+.es-col.esq{border-right:1px solid var(--borda)}
+.es-col.dir{border-left:1px solid var(--borda)}
+.es-col h4{margin:0 0 8px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--suave);display:flex;align-items:center;gap:6px}
+.es-centro{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px;min-width:0;background:#060806}
+#esCanvas{position:relative;width:100%;max-width:calc((100vh - 200px) * 16 / 9);aspect-ratio:16/9;background:var(--xadrez);box-shadow:0 0 0 1px var(--borda),0 20px 50px rgba(0,0,0,.5)}
+#esPalco{position:absolute;inset:0;overflow:hidden}
+#esOverlay{position:absolute;inset:0;z-index:2;touch-action:none}
+.es-box{position:absolute;outline:1px dashed rgba(255,255,255,.22);cursor:move}
+.es-box:hover{outline:1px solid rgba(61,255,46,.75)}
+.es-box.sel{outline:2px solid var(--verde);background:rgba(61,255,46,.04)}
+.es-box.trava{cursor:default;outline:none;pointer-events:none}
+.es-box.trava.sel{outline:2px dashed var(--amarelo)}
+.es-h{position:absolute;width:13px;height:13px;background:#fff;border:2px solid var(--verde);border-radius:3px}
+.es-h.tl{left:-8px;top:-8px;cursor:nwse-resize}.es-h.tr{right:-8px;top:-8px;cursor:nesw-resize}
+.es-h.bl{left:-8px;bottom:-8px;cursor:nesw-resize}.es-h.br{right:-8px;bottom:-8px;cursor:nwse-resize}
+.es-guia{position:absolute;background:var(--roxo);pointer-events:none;z-index:3}
+.es-guia.v{top:0;bottom:0;width:1px}.es-guia.h{left:0;right:0;height:1px}
+.es-dica{font-size:12px;color:var(--suave);text-align:center}
+.es-lista{list-style:none;padding:0;margin:0 0 8px;display:flex;flex-direction:column;gap:3px}
+.es-item{display:flex;align-items:center;gap:6px;padding:7px 8px;border-radius:8px;background:var(--card2);border:1px solid transparent;cursor:pointer;font-size:13px;user-select:none}
+.es-item:hover{border-color:#3d523d}
+.es-item.sel{border-color:var(--verde);background:#16301a}
+.es-item .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.es-item.oculta .nm,.es-item.oculta .ti{opacity:.4}
+.es-item .badge{font-size:9px;font-weight:800;background:var(--vermelho);color:#fff;padding:2px 5px;border-radius:5px;letter-spacing:.06em}
+.es-ib{background:none;border:none;cursor:pointer;padding:2px 4px;font-size:13px;border-radius:5px;line-height:1}
+.es-ib:hover{background:#0007}
+.es-barra{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:14px}
+.es-vazio{color:var(--suave);font-size:12px;padding:10px;border:1px dashed var(--borda);border-radius:8px;text-align:center}
+.es-menu{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:#0e120e;border:1px solid var(--roxo);border-radius:10px;padding:8px;margin-bottom:12px}
+.es-menu .sep{grid-column:1/-1;font-size:10px;letter-spacing:.09em;text-transform:uppercase;color:var(--suave);margin:4px 2px 0}
+.es-menu button{text-align:left;font-size:12px;padding:7px 8px}
+#esProps{border-top:1px solid var(--borda);padding-top:12px}
+#esProps label.campo{margin-bottom:9px}
+#esProps .chk{margin-bottom:9px}
+.es-geo{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.es-geo label.campo{margin-bottom:6px}
+.es-2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.chips{display:flex;flex-wrap:wrap;gap:4px;margin:-4px 0 10px}
+.chip{font-size:11px;padding:3px 8px;border-radius:12px;background:var(--card2);border:1px solid var(--borda);cursor:pointer;color:var(--texto)}
+.chip:hover{border-color:var(--verde);color:var(--verde)}
+.es-info{font-size:12px;color:#cfdccf;background:#16301a;border:1px solid #2b5a2b;border-radius:8px;padding:9px 10px;margin-bottom:10px;line-height:1.45}
+@media (max-width:1150px){.es-corpo{grid-template-columns:180px minmax(0,1fr) 300px}}
+@media (max-width:900px){.es-corpo{grid-template-columns:1fr;overflow:auto}.es-col{overflow:visible}#esCanvas{max-width:100%}}
+
+/* ================= MODO SAÍDA ================= */
+body.modo-saida{background:#000;overflow:hidden}
+body.modo-saida.transparente{background:transparent}
+body.modo-saida #painel,body.modo-saida #estudio{display:none}
+#saida{display:none}
+body.modo-saida #saida{display:block;position:fixed;inset:0;overflow:hidden}
+.aviso-saida{position:fixed;top:12px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.75);color:#fff;padding:8px 16px;border-radius:20px;
+  font-size:13px;z-index:99;transition:opacity 1s;pointer-events:none}
+
+/* ================= PALCO 1920x1080 ================= */
+.st-palco{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;overflow:hidden;font-family:Inter,sans-serif;color:#fff}
+.st-cena{position:absolute;inset:0;opacity:0;transition:opacity .5s}
+.st-cena.ativa{opacity:1}
+.st-cena[data-fundo=arte]{background:
+  url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='.16'/></svg>"),
+  radial-gradient(ellipse at 10% 22%,rgba(61,255,46,.42),transparent 36%),
+  radial-gradient(ellipse at 90% 82%,rgba(139,61,255,.45),transparent 42%),
+  radial-gradient(ellipse at 72% 6%,rgba(61,255,46,.18),transparent 30%),
+  radial-gradient(ellipse at 30% 95%,rgba(139,61,255,.22),transparent 35%),
+  #050705}
+.st-cena[data-fundo=transparente]{background:transparent}
+.st-cena[data-fundo=verde]{background:#00ff00}
+.st-cena[data-fundo=preto]{background:#000}
+
+.st-f{position:absolute;transform-origin:center}
+.st-f-txt{width:100%;height:100%;display:flex;align-items:center}
+.st-f-txt.al-esq{justify-content:flex-start;text-align:left}
+.st-f-txt.al-centro{justify-content:center;text-align:center}
+.st-f-txt.al-dir{justify-content:flex-end;text-align:right}
+.tx{display:inline-block;max-width:100%;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.08}
+.tx-simples{text-shadow:.05em .06em 0 rgba(0,0,0,.9)}
+.tx-titulo{line-height:.92;text-shadow:
+  .035em 0 0 #050505,-.035em 0 0 #050505,0 .035em 0 #050505,0 -.035em 0 #050505,
+  .025em .025em 0 #050505,-.025em .025em 0 #050505,.025em -.025em 0 #050505,-.025em -.025em 0 #050505,
+  .075em .085em 0 #050505,0 0 .3em rgba(61,255,46,.45)}
+.tx-etiqueta{background:var(--fundo);padding:.28em .55em .22em;box-shadow:.16em .16em 0 #000;clip-path:polygon(2% 4%,98% 0,100% 94%,4% 100%);line-height:1.05}
+.tx-pill{background:var(--fundo);padding:.12em .55em 0;box-shadow:.13em .13em 0 #000;letter-spacing:.03em}
+.tx-caixa{background:var(--fundo);border:5px solid var(--verde);box-shadow:12px 12px 0 var(--roxo);padding:.1em .45em .04em;line-height:1;text-shadow:0 0 .2em rgba(61,255,46,.45);letter-spacing:.03em}
+.tx-caixa .lbl{display:block;font-family:'Permanent Marker',cursive;font-size:.23em;color:#fff;text-shadow:none;letter-spacing:0;margin:.3em 0 .15em}
+.tx-caixa .num{display:block}
+.st-f-emoji{display:flex;align-items:center;justify-content:center;line-height:1;filter:drop-shadow(10px 10px 0 rgba(0,0,0,.85))}
+.st-f-logo{display:flex;align-items:center;justify-content:center}
+.st-logo-fit.com-img{width:100%;height:100%;display:flex;align-items:center;justify-content:center}
+.st-adesivos{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+
+.st-logo{display:inline-flex;flex-direction:column;align-items:center;font-family:Bangers,Impact,sans-serif;line-height:.86;transform:rotate(-3deg);color:var(--verde);letter-spacing:.02em}
+.st-logo .st-l1,.st-logo .st-l2{text-shadow:
+  .035em 0 0 #050505,-.035em 0 0 #050505,0 .035em 0 #050505,0 -.035em 0 #050505,
+  .025em .025em 0 #050505,-.025em .025em 0 #050505,.025em -.025em 0 #050505,-.025em -.025em 0 #050505,
+  .075em .085em 0 #050505,0 0 .35em rgba(61,255,46,.5)}
+.st-logo .st-pill{font-family:'Permanent Marker',cursive;font-size:.27em;line-height:1.15;background:#fff;color:#2a3bd1;
+  padding:.08em .8em .02em;border:.1em solid #111;border-radius:1em;transform:rotate(4deg);margin-top:.12em;box-shadow:.12em .12em 0 #000}
+.st-logo-img{max-width:100%;max-height:100%;object-fit:contain;filter:drop-shadow(6px 6px 0 rgba(0,0,0,.6))}
+
+.st-stk,.st-emo,.st-doodle{position:absolute}
+.st-emo{filter:drop-shadow(10px 10px 0 rgba(0,0,0,.85));animation:flutua 5s ease-in-out infinite;line-height:1}
+.st-emo:nth-child(even){animation-duration:6.5s;animation-delay:-2s}
+.st-tag{display:inline-block;font-family:'Permanent Marker',cursive;font-size:44px;line-height:1.05;background:#fff;color:#111;
+  padding:14px 22px;text-align:center;box-shadow:8px 8px 0 #000;clip-path:polygon(2% 4%,98% 0,100% 94%,4% 100%)}
+.st-tag-preto{background:#111;color:#fff;border:3px solid #fff}
+.st-sovem{position:relative;font-size:54px}
+.st-sovem::after{content:'';position:absolute;left:18%;right:14%;bottom:12px;height:7px;background:var(--vermelho);border-radius:4px;transform:rotate(-3deg)}
+.st-doodle{font-size:90px;color:var(--amarelo);text-shadow:5px 5px 0 #000;animation:gira 9s linear infinite}
+@keyframes flutua{0%,100%{translate:0 0}50%{translate:0 -18px}}
+@keyframes gira{to{rotate:360deg}}
+
+/* fontes "da live" (ligadas pelo painel) */
+.st-din-in{position:absolute;left:0;top:0;transform-origin:0 0}
+.st-din-anim{transition:opacity .45s,translate .6s cubic-bezier(.2,1.25,.4,1);opacity:0}
+.st-f[data-din=letreiro] .st-din-anim,.st-f[data-din=pauta] .st-din-anim{translate:-115% 0}
+.st-f[data-din=comentario] .st-din-anim{translate:115% 0}
+.st-f[data-din=selo] .st-din-anim{translate:0 -40px}
+.st-f[data-din=faixa] .st-din-anim{translate:0 110%;width:100%;height:100%}
+.st-f.on .st-din-anim{opacity:1;translate:0 0}
+.dyn-lower{display:flex;flex-direction:column;align-items:flex-start}
+.st-lower-nome{font-family:Bangers,Impact,sans-serif;font-size:84px;line-height:1;background:var(--verde);color:#050505;padding:10px 34px 2px;
+  transform:rotate(-1.5deg);box-shadow:10px 10px 0 #000;letter-spacing:.03em}
+.st-lower-funcao{font-family:'Permanent Marker',cursive;font-size:36px;background:#fff;color:#111;padding:6px 24px;margin:-4px 0 0 30px;box-shadow:8px 8px 0 #000;transform:rotate(1deg)}
+.st-lower-insta{font-weight:800;font-size:28px;background:var(--roxo);color:#fff;padding:6px 18px;margin:6px 0 0 60px;box-shadow:6px 6px 0 #000}
+.st-lower-funcao:empty,.st-lower-insta:empty{display:none}
+.dyn-tema{display:inline-flex;align-items:stretch;filter:drop-shadow(8px 8px 0 #000)}
+.dyn-tema b{background:var(--verde);color:#050505;font-family:Bangers,Impact,sans-serif;font-weight:400;font-size:42px;padding:10px 20px 4px;letter-spacing:.05em}
+.dyn-tema span{background:#fff;color:#111;font-family:'Permanent Marker',cursive;font-size:36px;padding:10px 26px;max-width:1050px}
+.dyn-card{background:#fff;color:#111;border:6px solid #111;box-shadow:14px 14px 0 var(--verde);padding:22px 28px 26px;transform:rotate(1.5deg)}
+.st-destaque-autor{font-family:Bangers,Impact,sans-serif;font-size:42px;color:var(--roxo);letter-spacing:.03em;margin-bottom:6px}
+.st-destaque-autor::before{content:'💬 '}
+.st-destaque-texto{font-size:36px;font-weight:600;line-height:1.25;overflow-wrap:anywhere}
+.dyn-selo{display:inline-flex;align-items:center;gap:14px;background:#0a0a0a;font-family:Bangers,Impact,sans-serif;font-size:44px;padding:8px 26px 4px;
+  border:4px solid var(--vermelho);border-radius:999px;box-shadow:6px 6px 0 #000;letter-spacing:.05em}
+.dyn-selo i{width:20px;height:20px;border-radius:50%;background:var(--vermelho);animation:pulsa 1.2s infinite;margin-top:-4px}
+.dyn-selo span{color:var(--verde)}
+.dyn-selo span:empty{display:none}
+@keyframes pulsa{0%,100%{box-shadow:0 0 0 0 rgba(255,46,77,.8)}70%{box-shadow:0 0 0 16px rgba(255,46,77,0)}}
+.dyn-ticker{width:100%;height:100%;display:flex;background:#050505;border-top:6px solid var(--verde)}
+.st-ticker-label{flex:none;display:flex;align-items:center;background:var(--verde);color:#050505;font-family:Bangers,Impact,sans-serif;font-size:40px;
+  padding:4px 44px 0 28px;letter-spacing:.04em;clip-path:polygon(0 0,100% 0,93% 100%,0 100%)}
+.st-ticker-trilho{flex:1;overflow:hidden;display:flex;align-items:center}
+.st-ticker-texto{display:inline-block;white-space:nowrap;font-size:34px;font-weight:800;animation:rola var(--dur,30s) linear infinite}
+.st-ticker-texto em{font-style:normal;color:var(--verde);margin:0 28px}
+@keyframes rola{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.st-wipe{position:absolute;inset:0;z-index:50;background:var(--verde);display:flex;align-items:center;justify-content:center;transform:translateX(-101%)}
+.st-wipe::before{content:'';position:absolute;top:0;bottom:0;left:-40px;width:60px;background:var(--roxo)}
+.st-wipe span{font-family:Bangers,Impact,sans-serif;font-size:230px;color:#050505;transform:rotate(-3deg);text-shadow:10px 10px 0 rgba(255,255,255,.6)}
+.st-wipe.play{animation:wipe 1s cubic-bezier(.7,0,.3,1)}
+@keyframes wipe{0%{transform:translateX(-101%)}42%,58%{transform:translateX(0)}100%{transform:translateX(101%)}}
+</style>
+</head>
+<body>
+
+<div id="painel">
+  <header class="topo">
+    <div class="marca"><span class="m1">ENTRE GERAÇÕES</span><span class="m2">central da live</span></div>
+    <nav class="abas">
+      <button class="aba-btn on" data-aba="controle">🎬 Controle</button>
+      <button class="aba-btn" data-aba="pauta">📝 Pauta</button>
+      <button class="aba-btn" data-aba="config">⚙️ Configurações</button>
+    </nav>
+    <div class="topo-acoes">
+      <span id="status" class="status">● Tela de saída fechada</span>
+      <button id="btnSaida" class="btn verde">📺 Abrir tela de saída</button>
+      <button id="btnLink" class="btn">🔗 Copiar link p/ fonte de navegador</button>
+      <button class="btn" data-acao="ajuda">⌨️ Atalhos e ajuda<kbd>?</kbd></button>
+    </div>
+  </header>
+
+  <main class="aba on" id="abaControle">
+    <div class="monitores" id="monitores">
+      <div class="monitor prev" id="monPreviaBox">
+        <div class="mon-cab"><span class="mon-tag prev">PRÉVIA</span><span id="monPreviaNome"></span></div>
+        <div class="preview-wrap"><div id="prPrevia" class="preview"></div></div>
+      </div>
+      <div class="mon-acoes" id="monAcoes">
+        <button class="btn verde" data-acao="transicao">⇄ Transição<kbd>Enter</kbd></button>
+        <button class="btn" data-acao="corte">✂ Corte seco</button>
+        <p class="dica">Clique numa cena para pôr na prévia. Duplo clique leva direto pro ar.</p>
+      </div>
+      <div class="monitor prog">
+        <div class="mon-cab"><span class="mon-tag ar">PROGRAMA · NO AR</span><span id="cenaNome"></span>
+          <button class="btn sm" id="btnModoEstudio" data-acao="modoEstudio">🎬 Modo estúdio</button></div>
+        <div class="preview-wrap"><div id="preview" class="preview"></div></div>
+        <div class="cronos">
+          <span style="color:var(--suave);font-weight:700">No ar há</span><b id="pNoAr">--:--</b>
+          <button class="btn sm" data-acao="iniciarCrono">▶ Iniciar</button>
+          <button class="btn sm" data-acao="zerarCrono">⟲ Zerar</button>
+          <button class="btn sm" data-acao="esconderTudo" style="margin-left:auto">🙈 Esconder letreiros<kbd>Esc</kbd></button>
+        </div>
+      </div>
+    </div>
+    <div class="grade-cards">
+
+      <div class="card span-tudo">
+        <h2>🎬 Cenas <button class="btn roxo" data-acao="abrirEstudio">🛠️ Editor de cenas</button></h2>
+        <div class="cenas" id="cenasGrade"></div>
+        <div class="crono-cena" id="cronoCena" hidden>
+          <span style="color:var(--suave);font-weight:700">⏱ Cronômetro desta cena:</span>
+          <button class="btn sm" data-acao="cronoMais">+1 min</button>
+          <button class="btn sm" data-acao="cronoMenos">−1 min</button>
+          <button class="btn sm" data-acao="cronoReiniciar">⟲ Reiniciar</button>
+        </div>
+        <p class="dica" id="dicaCenas"></p>
+      </div>
+
+      <div class="card">
+        <h2>📼 Episódio</h2>
+        <div class="linha">
+          <label class="campo" style="flex:0 0 80px">Nº<input type="text" data-k="ep.num"></label>
+          <label class="campo">Título do episódio<input type="text" data-k="ep.titulo"></label>
+        </div>
+        <div class="linha">
+          <label class="campo">Convidado(a)<input type="text" data-k="ep.convidado" placeholder="deixe vazio se não tiver"></label>
+          <label class="campo">Próximo episódio<input type="text" data-k="ep.proximo"></label>
+        </div>
+        <div class="linha">
+          <label class="campo" style="flex:0 0 130px">Live começa às<input type="time" id="horaInicio"></label>
+          <button class="btn" data-acao="contagem" data-min="5">+5 min</button>
+          <button class="btn" data-acao="contagem" data-min="10">+10 min</button>
+          <button class="btn" data-acao="semContagem">Sem contagem</button>
+        </div>
+        <button class="btn vermelho grande" data-acao="comecar">🔴 COMEÇAR A LIVE <span style="font-weight:400">— vai pra cena de câmera e liga o cronômetro</span></button>
+      </div>
+
+      <div class="card">
+        <h2>🏷️ Letreiro de nome <small>tecla L</small></h2>
+        <div class="presets" id="presets"></div>
+        <p class="dica" style="margin:-4px 0 10px">Os botões rápidos são editados em ⚙️ Configurações → Apresentadores.</p>
+        <div class="linha">
+          <label class="campo">Nome<input type="text" data-k="lower.nome"></label>
+          <label class="campo">Função / frase<input type="text" data-k="lower.funcao"></label>
+          <label class="campo" style="flex:0 0 170px">@ Instagram<input type="text" data-k="lower.insta"></label>
+        </div>
+        <div class="linha">
+          <button class="btn" data-toggle="lower.on" data-label="👁️ Mostrar letreiro">👁️ Mostrar letreiro</button>
+          <label class="chk"><input type="checkbox" data-k="config.painel.autoEsconder"> esconder sozinho após</label>
+          <input type="number" data-k="config.painel.autoSeg" min="3" max="120" style="width:70px"> s
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📌 Pauta na tela <small>teclas N e P</small></h2>
+        <div class="linha">
+          <label class="campo">Assunto na tela (ou escolha na aba 📝 Pauta)<input type="text" data-k="tema.texto" placeholder="ex: A pior cantada que já levamos"></label>
+        </div>
+        <div class="linha">
+          <button class="btn verde" data-acao="pautaProximo">⏭ Próximo da pauta<kbd>N</kbd></button>
+          <button class="btn" data-toggle="tema.on" data-label="👁️ Mostrar">👁️ Mostrar</button>
+          <button class="btn" data-aba="pauta">📝 Abrir pauta</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>💬 Comentário em destaque <small>tecla C</small></h2>
+        <div class="linha">
+          <label class="campo" style="flex:0 0 190px">Quem mandou<input type="text" data-k="destaque.autor" placeholder="@fulano"></label>
+          <label class="campo">Comentário<textarea data-k="destaque.texto" rows="2" placeholder="cole aqui o comentário do chat"></textarea></label>
+        </div>
+        <div class="linha">
+          <button class="btn" data-toggle="destaque.on" data-label="👁️ Mostrar comentário">👁️ Mostrar comentário</button>
+          <button class="btn" data-acao="limparDestaque">🧹 Limpar</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>📰 Faixa rolante <small>tecla F</small></h2>
+        <div class="linha">
+          <label class="campo">Texto (use ★ para separar avisos)<textarea data-k="ticker.texto" rows="2"></textarea></label>
+        </div>
+        <button class="btn" data-toggle="ticker.on" data-label="👁️ Mostrar faixa">👁️ Mostrar faixa</button>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ============ ABA PAUTA ============ -->
+  <section class="aba" id="abaPauta">
+    <div class="pa-grade">
+      <div class="card">
+        <h2>📝 Roteiro do episódio <small id="paProgTxt"></small></h2>
+        <div class="pa-prog"><i id="paProg"></i></div>
+        <div class="pa-resumo" id="paResumo"></div>
+        <div class="pa-add">
+          <input type="text" id="pautaNovo" placeholder="Novo assunto + Enter — ou cole a pauta inteira (um assunto por linha)">
+          <button class="btn verde" data-acao="pautaAdd">Adicionar</button>
+        </div>
+        <ul class="pauta-lista" id="pautaLista"></ul>
+        <div class="pa-rodape">
+          <button class="btn sm" data-acao="pautaReset">↺ Desmarcar todos</button>
+          <button class="btn sm" data-acao="pautaZerarTempo">⏱ Zerar tempo do assunto</button>
+          <button class="btn sm perigo" data-acao="pautaLimpar" style="margin-left:auto">🗑 Apagar pauta inteira</button>
+        </div>
+        <p class="dica">Clique numa linha para editar (título, anotações e tempo). ▶ coloca na tela · ✓ marca como feito · ⠿ arrasta para reordenar. Dica: ao colar uma lista, “Assunto | 10” já define 10 min previstos.</p>
+      </div>
+
+      <div class="pa-lado">
+        <div class="card pa-agora" id="paAgoraCard">
+          <div class="pa-rot" id="paAgoraRot">🔴 Na tela agora</div>
+          <div class="pa-tit" id="paAgoraTit"></div>
+          <div class="pa-tempo" id="paAgoraTempo"></div>
+          <div class="pa-notas" id="paAgoraNotas"></div>
+          <div class="pa-botoes">
+            <button class="btn" data-acao="pautaAnterior">⏮ Anterior</button>
+            <button class="btn verde" data-acao="pautaProximo">⏭ Próximo<kbd>N</kbd></button>
+            <button class="btn" data-toggle="tema.on" data-label="👁️ Mostrar">👁️ Mostrar</button>
+          </div>
+        </div>
+        <div class="card pa-seguir">
+          <div class="pa-rot">A seguir</div>
+          <div class="pa-tit" id="paSeguirTit"></div>
+          <div class="pi-notas" id="paSeguirNotas"></div>
+        </div>
+        <div class="card" id="paEditor"></div>
+        <div class="card">
+          <div class="pa-rot" style="margin-bottom:8px">Saída da live</div>
+          <div class="preview-wrap"><div id="paPreview" class="preview"></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABA CONFIGURAÇÕES ============ -->
+  <section class="aba" id="abaConfig">
+    <div class="cfg-grade">
+      <div class="cfg-col">
+        <div class="card">
+          <h2>🎙️ Identidade do programa</h2>
+          <p class="cfg-sub">Muda o logo em texto, a transição entre cenas e a etiqueta da faixa rolante.</p>
+          <div class="linha">
+            <label class="campo">Nome — linha 1<input type="text" data-k="config.nome1"></label>
+            <label class="campo">Nome — linha 2<input type="text" data-k="config.nome2"></label>
+          </div>
+          <div class="linha">
+            <label class="campo">Selo embaixo do nome<input type="text" data-k="config.selo"></label>
+            <label class="campo">Nome curto (transição e faixa)<input type="text" data-k="config.nomeCurto"></label>
+          </div>
+          <div class="linha" style="align-items:center">
+            <img id="logoMini" class="logo-mini" alt="" hidden>
+            <label class="btn">🖼️ Usar logo em imagem (PNG)<input type="file" id="logoArquivo" accept="image/*" hidden></label>
+            <button class="btn" data-acao="removerLogo" id="btnRemoverLogo" hidden>Voltar pro logo em texto</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>🎨 Cores da live <button class="btn" data-acao="coresPadrao">↺ Originais</button></h2>
+          <p class="cfg-sub">Valem para letreiros, títulos, caixas, faixa, selo e transição em todas as cenas.</p>
+          <div class="cores">
+            <label class="campo">Principal<input type="color" data-k="config.cores.principal"></label>
+            <label class="campo">Secundária<input type="color" data-k="config.cores.secundaria"></label>
+            <label class="campo">Destaque<input type="color" data-k="config.cores.destaque"></label>
+            <label class="campo">Alerta / ao vivo<input type="color" data-k="config.cores.alerta"></label>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>🔤 Textos dos elementos da live</h2>
+          <div class="linha">
+            <label class="campo">Etiqueta da pauta<input type="text" data-k="config.rotulos.pauta"></label>
+            <label class="campo">Selo ao vivo<input type="text" data-k="config.rotulos.aovivo"></label>
+          </div>
+          <div class="linha">
+            <label class="campo">Autor padrão do comentário<input type="text" data-k="config.rotulos.autor"></label>
+            <label class="campo">Perfis — {perfis} (separe por espaço)<input type="text" data-k="handles"></label>
+          </div>
+          <div class="linha">
+            <label class="campo">Texto da faixa rolante (use ★ para separar)<textarea data-k="ticker.texto" rows="2"></textarea></label>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>✨ Adesivos do banner</h2>
+          <p class="cfg-sub">Aparecem onde houver a fonte “Adesivos do banner”. Enter quebra linha nas etiquetas.</p>
+          <div class="linha">
+            <label class="campo">Etiqueta 1 (branca)<textarea data-k="config.adesivos.tag1" rows="2"></textarea></label>
+            <label class="campo">Etiqueta 2 (preta)<textarea data-k="config.adesivos.tag2" rows="2"></textarea></label>
+          </div>
+          <div class="linha">
+            <label class="campo">Etiqueta 3 (sublinhada)<input type="text" data-k="config.adesivos.tag3"></label>
+            <label class="campo">4 emojis (separe por espaço)<input type="text" data-k="config.adesivos.emojis"></label>
+            <label class="campo" style="flex:0 0 110px">3 rabiscos<input type="text" data-k="config.adesivos.rabiscos"></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="cfg-col">
+        <div class="card">
+          <h2>🏷️ Apresentadores <small>botões rápidos do letreiro</small></h2>
+          <p class="cfg-sub">Use <b>{convidado}</b> no nome para puxar o convidado do episódio.</p>
+          <div class="apr-linha apr-cab"><span>Botão</span><span>Nome</span><span>Função / frase</span><span>@ Instagram</span><span></span></div>
+          <div id="aprLista"></div>
+          <button class="btn sm verde" data-acao="aprAdd">＋ Adicionar apresentador</button>
+        </div>
+
+        <div class="card">
+          <h2>🖥️ Painel (este site)</h2>
+          <div class="linha">
+            <label class="campo">Título no topo<input type="text" data-k="config.painel.titulo"></label>
+            <label class="campo">Subtítulo<input type="text" data-k="config.painel.subtitulo"></label>
+          </div>
+          <div class="linha">
+            <label class="campo" style="flex:0 0 140px">Cor do painel<input type="color" data-k="config.painel.cor"></label>
+            <label class="campo" style="flex:0 0 160px">Letreiro some após (s)<input type="number" min="3" max="120" data-k="config.painel.autoSeg"></label>
+          </div>
+          <div class="linha" style="gap:16px">
+            <label class="chk"><input type="checkbox" data-k="config.painel.autoEsconder"> Letreiro de nome some sozinho</label>
+            <label class="chk"><input type="checkbox" data-k="visual.transicao"> Transição animada entre cenas</label>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>💾 Backup</h2>
+          <p class="cfg-sub">Tudo fica salvo neste navegador. Exporte para guardar ou levar para outro computador.</p>
+          <div class="linha">
+            <button class="btn verde" data-acao="exportar">⬇ Exportar tudo (.json)</button>
+            <label class="btn">⬆ Importar backup<input type="file" id="importarArquivo" accept=".json,application/json" hidden></label>
+            <button class="btn perigo" data-acao="resetarTudo" style="margin-left:auto">⚠️ Apagar tudo e recomeçar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ============ EDITOR DE CENAS ============ -->
+<div id="estudio" hidden>
+  <div class="es-topo">
+    <h3>🛠️ Editor de cenas</h3>
+    <span class="nome-cena" id="esNomeCena"></span>
+    <span style="flex:1"></span>
+    <button class="btn verde" data-acao="esNoAr">🔴 Colocar esta cena no ar</button>
+    <button class="btn" data-acao="fecharEstudio">✕ Fechar<kbd>Esc</kbd></button>
+  </div>
+  <div class="es-corpo">
+    <div class="es-col esq">
+      <h4>Cenas</h4>
+      <ul class="es-lista" id="esCenas"></ul>
+      <div class="es-barra">
+        <button class="btn sm" data-acao="esNovaCena" title="Nova cena">＋ Nova</button>
+        <button class="btn sm" data-acao="esDupCena" title="Duplicar cena">📄</button>
+        <button class="btn sm" data-acao="esSobeCena" title="Subir">⬆</button>
+        <button class="btn sm" data-acao="esDesceCena" title="Descer">⬇</button>
+        <button class="btn sm perigo" data-acao="esApagaCena" title="Excluir cena">🗑</button>
+      </div>
+      <button class="btn sm" data-acao="restaurarCenas" style="width:100%">↺ Restaurar cenas padrão</button>
+    </div>
+
+    <div class="es-centro">
+      <div id="esCanvas">
+        <div id="esPalco"></div>
+        <div id="esOverlay"></div>
+      </div>
+      <div class="es-dica">Clique para selecionar · arraste para mover · puxe os cantos para redimensionar · setas movem 1px (Shift = 10px) · Delete apaga · clique no vazio para ver o fundo da cena</div>
+    </div>
+
+    <div class="es-col dir">
+      <h4>Fontes <span style="margin-left:auto;text-transform:none;letter-spacing:0;font-weight:600">a de cima fica na frente</span></h4>
+      <ul class="es-lista" id="esFontes"></ul>
+      <div class="es-barra">
+        <button class="btn sm verde" data-acao="esMenu">＋ Adicionar</button>
+        <button class="btn sm" data-acao="esFrente" title="Trazer pra frente">⬆</button>
+        <button class="btn sm" data-acao="esTras" title="Mandar pra trás">⬇</button>
+        <button class="btn sm" data-acao="esDupFonte" title="Duplicar">📄</button>
+        <button class="btn sm perigo" data-acao="esApagaFonte" title="Apagar">🗑</button>
+      </div>
+      <div class="es-menu" id="esMenu" hidden>
+        <div class="sep">Textos</div>
+        <button class="btn" data-add="texto">🔤 Texto simples</button>
+        <button class="btn" data-add="titulo">🅰️ Título grande</button>
+        <button class="btn" data-add="etiqueta">🏷️ Etiqueta (papel)</button>
+        <button class="btn" data-add="caixa">⏱️ Caixa de tempo</button>
+        <button class="btn" data-add="pill">🟪 Faixa colorida</button>
+        <div class="sep">Visual</div>
+        <button class="btn" data-add="imagem">🖼️ Imagem</button>
+        <button class="btn" data-add="logo">⭐ Logo do podcast</button>
+        <button class="btn" data-add="emoji">😀 Emoji</button>
+        <button class="btn" data-add="retangulo">🟩 Retângulo</button>
+        <button class="btn" data-add="adesivos">✨ Adesivos do banner</button>
+        <div class="sep">Da live (ligados pelo painel)</div>
+        <button class="btn" data-add="letreiro">🎙️ Letreiro de nome</button>
+        <button class="btn" data-add="pauta">📌 Pauta</button>
+        <button class="btn" data-add="comentario">💬 Comentário</button>
+        <button class="btn" data-add="selo">🔴 Selo AO VIVO</button>
+        <button class="btn" data-add="faixa">📰 Faixa rolante</button>
+      </div>
+      <div id="esProps"></div>
+    </div>
+  </div>
+  <input type="file" id="esArquivo" accept="image/*" hidden>
+</div>
+
+<dialog id="ajuda">
+  <div class="aj-topo"><h3>⌨️ Atalhos e ajuda</h3><button class="btn" data-acao="fecharAjuda">✕ Fechar</button></div>
+  <div class="aj-corpo">
+    <h4>Teclas (no painel, fora dos campos de texto)</h4>
+    <div class="teclas">
+      <div class="tecla"><kbd>1–9</kbd>Troca de cena, na ordem da lista</div>
+      <div class="tecla"><kbd>N</kbd>Próximo assunto da pauta</div>
+      <div class="tecla"><kbd>L</kbd>Letreiro de nome</div>
+      <div class="tecla"><kbd>P</kbd>Pauta na tela</div>
+      <div class="tecla"><kbd>C</kbd>Comentário em destaque</div>
+      <div class="tecla"><kbd>F</kbd>Faixa rolante</div>
+      <div class="tecla"><kbd>Esc</kbd>Esconde letreiro, pauta e comentário</div>
+      <div class="tecla"><kbd>?</kbd>Abre esta ajuda</div>
+      <div class="tecla"><kbd>Enter</kbd>Modo estúdio: manda a prévia pro ar</div>
+    </div>
+
+    <h4>Modo estúdio (igual ao OBS)</h4>
+    <ol class="passos">
+      <li>Ligue <b>🎬 Modo estúdio</b> no monitor do programa. Aparecem duas telas: <b>Prévia</b> (amarela) e <b>Programa</b> (vermelha, o que está no ar).</li>
+      <li>Clicar numa cena (ou teclas 1–9) só coloca na <b>prévia</b> — o público não vê.</li>
+      <li><b>⇄ Transição</b> (ou Enter) leva a prévia pro ar com a animação; <b>✂ Corte seco</b> troca na hora. Duplo clique numa cena leva direto.</li>
+    </ol>
+
+    <h4>Editor de cenas</h4>
+    <ol class="passos">
+      <li>Cada cena tem um <b>fundo</b> (arte do podcast, cor, imagem, transparente ou verde chroma) e uma lista de <b>fontes</b>, como no OBS.</li>
+      <li>Fontes de texto aceitam variáveis: <code>{ep}</code> <code>{titulo}</code> <code>{convidado}</code> <code>{proximo}</code> <code>{perfis}</code> <code>{contagem}</code> <code>{cronometro}</code> <code>{noar}</code> <code>{hora}</code>. Se a variável estiver vazia (ex.: sem convidado), a fonte some sozinha.</li>
+      <li>As fontes <b>da live</b> (letreiro, pauta, comentário, selo, faixa) aparecem quando você liga elas no painel. Posicione onde quiser em cada cena.</li>
+    </ol>
+
+    <h4>Como ligar no OBS</h4>
+    <ol class="passos">
+      <li>Abra este arquivo no Chrome — essa é a <b>central</b>, fica com você.</li>
+      <li>Clique em <b>📺 Abrir tela de saída</b>. Abre uma janela só com o que vai pra live (clique duplo nela = tela cheia).</li>
+      <li>No OBS, crie uma cena com as câmeras e, <b>por cima delas</b>, adicione <b>Captura de janela</b> apontando para a janela “EG • Saída”.</li>
+      <li>Nas cenas de câmera, use o fundo <b>Verde chroma</b>. No OBS: botão direito na captura → <b>Filtros</b> → <b>Chroma Key</b> (verde).</li>
+      <li>As cenas com fundo cheio cobrem tudo — você só precisa de <b>uma cena no OBS</b> e troca o resto por aqui.</li>
+    </ol>
+    <p class="dica"><b>Jeito alternativo (tudo dentro do OBS):</b> <b>Fonte de navegador</b> com o link do botão “Copiar link” (“Arquivo local” desmarcado, 1920×1080) e esta central em <b>Docas → Docas de navegador personalizadas</b> com o endereço <code>file:///</code> deste arquivo. Nesse modo o verde chroma vira transparente sozinho. A captura de janela é o mais garantido.</p>
+  </div>
+</dialog>
+
+<div id="saida"></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+'use strict';
+
+/* ================= CONFIGURAÇÃO ================= */
+const CHAVE = 'eg_live_estado_v1';
+const CHAVE_PAUTA = 'eg_live_pauta_v1';
+const CANAL = 'eg_live_canal';
+
+
+const FONTES_CSS = { bangers:"Bangers,Impact,sans-serif", marker:"'Permanent Marker',cursive", inter:"Inter,system-ui,sans-serif" };
+const DIN = { letreiro:{w:1000,h:300}, pauta:{w:1200,h:90}, comentario:{w:660,h:320}, selo:{w:360,h:80}, faixa:{w:1920,h:76} };
+const TIPOS = {
+  texto:{ico:'🔤',nome:'Texto'}, imagem:{ico:'🖼️',nome:'Imagem'}, retangulo:{ico:'🟩',nome:'Retângulo'}, emoji:{ico:'😀',nome:'Emoji'},
+  logo:{ico:'⭐',nome:'Logo'}, adesivos:{ico:'✨',nome:'Adesivos do banner'},
+  letreiro:{ico:'🎙️',nome:'Letreiro de nome'}, pauta:{ico:'📌',nome:'Pauta'}, comentario:{ico:'💬',nome:'Comentário'},
+  selo:{ico:'🔴',nome:'Selo AO VIVO'}, faixa:{ico:'📰',nome:'Faixa rolante'}
+};
+const VARS = [['ep','nº do ep.'],['titulo','título do ep.'],['convidado','convidado'],['proximo','próximo ep.'],['perfis','perfis'],
+  ['contagem','contagem p/ live'],['cronometro','cronômetro da cena'],['noar','tempo no ar'],['hora','hora atual']];
+
+let seq = 0;
+const novoId = p => (p || 'f') + Date.now().toString(36) + (seq++).toString(36);
+function fonte(tipo, props){
+  return { id:novoId('f'), tipo, nome:TIPOS[tipo].nome, x:0, y:0, w:400, h:200, rot:0, opacidade:1, visivel:true, travada:false, ...props };
+}
+const txt = props => fonte('texto', { estilo:'simples', fonte:'inter', tamanho:60, cor:'#ffffff', fundo:'#ffffff', alinhar:'centro', texto:'Texto', ...props });
+const POS_DIN = {
+  letreiro:{x:70,y:630,w:1000,h:300}, pauta:{x:56,y:210,w:1200,h:90}, comentario:{x:1204,y:180,w:660,h:320},
+  selo:{x:1504,y:46,w:360,h:80}, faixa:{x:0,y:1004,w:1920,h:76}
+};
+function fontesAoVivo(comFaixa = true){
+  return [
+    fonte('logo', { nome:'Logo no canto', x:56, y:34, w:340, h:160 }),
+    fonte('selo', POS_DIN.selo), fonte('pauta', POS_DIN.pauta), fonte('comentario', POS_DIN.comentario), fonte('letreiro', POS_DIN.letreiro),
+    ...(comFaixa ? [fonte('faixa', POS_DIN.faixa)] : [])
+  ];
+}
+
+/* converte cenas do formato antigo (e monta as cenas padrão) */
+function converterAntiga(c){
+  if (Array.isArray(c.fontes)) return c;
+  const fundoOk = ['arte','preto','cor','transparente','verde'].includes(c.fundo) ? c.fundo : 'arte';
+  const n = { id:c.id || novoId('c'), nome:c.nome || 'Cena', icone:c.icone || '🎬',
+    fundo:{ tipo:fundoOk, cor:c.cor || '#14141f', imagem:null }, minutos:c.minutos || 5,
+    textoFim:(c.caixa === 'cronometro' && c.caixaTexto) || 'JÁ JÁ!', fontes:[] };
+  if (c.tipo === 'aovivo'){ n.fontes = fontesAoVivo(c.faixa !== false); return n; }
+  const pilha = [];
+  if (c.stickers) n.fontes.push(fonte('adesivos', { x:0, y:0, w:1920, h:1080 }));
+  const temMais = c.titulo || c.episodio || (c.caixa && c.caixa !== 'nenhuma') || c.imagem;
+  if (c.logo) pilha.push(temMais ? fonte('logo', { w:720, h:300 }) : fonte('logo', { w:1000, h:430 }));
+  if (c.titulo){
+    const L = c.titulo.length, t = L > 28 ? 110 : L > 14 ? 150 : 230;
+    const linhas = Math.max(1, Math.ceil(L * t * 0.48 / 1500));
+    pilha.push(txt({ nome:'Título', texto:c.titulo, estilo:'titulo', fonte:'bangers', tamanho:t, cor:'#3dff2e', w:1500, h:Math.round(linhas * t * 0.95 + 30), rot:-3 }));
+  }
+  if (c.imagem) pilha.push(fonte('imagem', { src:c.imagem, ajuste:'contain', sombra:true, w:1200, h:460 }));
+  if (c.subtitulo) pilha.push(txt({ nome:'Frase', texto:c.subtitulo, fonte:'marker', tamanho:48, w:1500, h:72 }));
+  if (c.episodio){
+    pilha.push(txt({ nome:'Episódio', texto:'EP. {ep} · {titulo}', fonte:'bangers', tamanho:62, w:1500, h:80 }));
+    pilha.push(txt({ nome:'Convidado', texto:'com {convidado} ✨', fonte:'marker', tamanho:40, cor:'#ffe62e', w:1200, h:56 }));
+  }
+  if (c.caixa && c.caixa !== 'nenhuma'){
+    const v = { contagem:'{contagem}', cronometro:'{cronometro}', noar:'{noar}', texto:c.caixaTexto || '' }[c.caixa] || '';
+    pilha.push(txt({ nome:'Caixa de tempo', texto:(c.caixaLabel ? c.caixaLabel + '\n' : '') + v, estilo:'caixa', fonte:'bangers', tamanho:150, cor:'#3dff2e', fundo:'#050505', w:900, h:250, rot:-1 }));
+  }
+  if (c.handles) pilha.push(txt({ nome:'Perfis', texto:'{perfis}', estilo:'pill', fonte:'bangers', tamanho:58, fundo:'#8b3dff', w:1300, h:90 }));
+  if (c.proximo) pilha.push(txt({ nome:'Próximo episódio', texto:'PRÓXIMO EPISÓDIO: {proximo}', fonte:'bangers', tamanho:50, w:1500, h:66 }));
+  const gap = 22, total = pilha.reduce((s, p) => s + p.h, 0) + gap * Math.max(0, pilha.length - 1);
+  let y = Math.max(30, Math.round((1080 - total) / 2));
+  pilha.forEach(p => { p.x = Math.round((1920 - p.w) / 2); p.y = y; y += p.h + gap; n.fontes.push(p); });
+  if (c.faixa) n.fontes.push(fonte('faixa', POS_DIN.faixa));
+  return n;
+}
+const CENAS_ANTIGAS = [
+  { id:'inicio', nome:'Começando', icone:'⏳', fundo:'arte', stickers:true, logo:true, episodio:true, caixa:'contagem', caixaLabel:'A LIVE COMEÇA EM' },
+  { id:'aovivo', nome:'Ao vivo', icone:'🎙️', tipo:'aovivo', fundo:'transparente', faixa:true },
+  { id:'intervalo', nome:'Intervalo', icone:'🍕', fundo:'arte', stickers:true, titulo:'JÁ VOLTAMOS!', subtitulo:'pega uma água que vai ter papo bom (ou não)',
+    caixa:'cronometro', caixaLabel:'VOLTAMOS EM', caixaTexto:'VOLTANDO AGORA!', minutos:5, faixa:true },
+  { id:'fim', nome:'Encerramento', icone:'👽', fundo:'arte', stickers:true, logo:true, titulo:'VALEU DEMAIS, RAPAZIADA!',
+    subtitulo:'se inscreve no canal e ativa o sininho 🔔', handles:true, proximo:true },
+];
+const cenasPadrao = () => CENAS_ANTIGAS.map(c => converterAntiga({ ...c }));
+
+const PADRAO = {
+  cena:'inicio', cenas:null,
+  ep:{ num:'01', titulo:'Papo bom (ou não)', convidado:'', proximo:'' },
+  contagemAlvo:null, alvoCena:null, inicioLive:null,
+  lower:{ on:false, nome:'Mateus Buarque', funcao:'Apresentador', insta:'@mateusbuarque' },
+  tema:{ on:false, texto:'' },
+  destaque:{ on:false, autor:'', texto:'' },
+  ticker:{ on:true, texto:'Bem-vindos ao Entre Gerações! ★ Duas gerações, um podcast, zero limites ★ Manda sua pergunta no chat ★ Se inscreve e ativa o sininho 🔔' },
+  handles:'@mateusbuarque @styvenkyomen',
+  visual:{ transicao:true },
+  logo:null, trocaId:0, trocaTipo:'anim', previa:null, pautaAtual:null, temaInicio:null,
+  config:{
+    nome1:'ENTRE', nome2:'GERAÇÕES', selo:'PODCAST', nomeCurto:'ENTRE GERAÇÕES',
+    cores:{ principal:'#3dff2e', secundaria:'#8b3dff', destaque:'#ffe62e', alerta:'#ff2e4d' },
+    rotulos:{ pauta:'PAUTA', aovivo:'AO VIVO', autor:'Do chat' },
+    adesivos:{ tag1:'UM PODCAST\nZERO LIMITES', tag2:'PAPO BOM\n(OU NÃO)', tag3:'SÓ VEM', emojis:'🎙️ 😼 🍕 👽', rabiscos:'★ ✦ ⚡' },
+    apresentadores:[
+      { rotulo:'🎙️ Mateus', nome:'Mateus Buarque', funcao:'Apresentador', insta:'@mateusbuarque' },
+      { rotulo:'🎙️ Styven', nome:'Styven', funcao:'Apresentador', insta:'@styvenkyomen' },
+      { rotulo:'⭐ Convidado(a)', nome:'{convidado}', funcao:'Convidado(a) de hoje', insta:'' },
+      { rotulo:'🎤 Os dois', nome:'Mateus & Styven', funcao:'Duas gerações, um podcast, zero limites', insta:'' },
+    ],
+    painel:{ titulo:'ENTRE GERAÇÕES', subtitulo:'central da live', cor:'#3dff2e', autoSeg:10, autoEsconder:true, modoEstudio:false }
+  }
+};
+let CFG = PADRAO.config;
+
+/* ================= UTILIDADES ================= */
+const clone = o => JSON.parse(JSON.stringify(o));
+function mesclar(base, extra){
+  if (!extra || typeof extra !== 'object') return base;
+  for (const k of Object.keys(base)){
+    if (!(k in extra)) continue;
+    if (base[k] && typeof base[k] === 'object' && !Array.isArray(base[k])) mesclar(base[k], extra[k]);
+    else base[k] = extra[k];
+  }
+  return base;
+}
+function normalizar(s){
+  const e = mesclar(clone(PADRAO), s);
+  let cenas = Array.isArray(e.cenas) && e.cenas.length ? e.cenas : cenasPadrao();
+  e.cenas = cenas.map(converterAntiga).map(c => ({
+    minutos:5, textoFim:'JÁ JÁ!', icone:'🎬', nome:'Cena', ...c,
+    fundo:{ tipo:'arte', cor:'#14141f', imagem:null, ...(c.fundo || {}) },
+    fontes:(c.fontes || []).map(f => ({ rot:0, opacidade:1, visivel:true, travada:false, ...f }))
+  }));
+  if (!e.cenas.some(c => c.id === e.cena)) e.cena = e.cenas[0].id;
+  if (!e.cenas.some(c => c.id === e.previa)) e.previa = e.cena;
+  return e;
+}
+const pegar = (o, caminho) => caminho.split('.').reduce((a, k) => a && a[k], o);
+function definir(o, caminho, v){ const p = caminho.split('.'); const u = p.pop(); p.reduce((a,k)=>a[k], o)[u] = v; }
+const esc = s => String(s ?? '').replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+const pp = n => String(n).padStart(2,'0');
+function fmt(ms){
+  let s = Math.max(0, Math.floor(ms/1000));
+  const h = Math.floor(s/3600); s -= h*3600;
+  const m = Math.floor(s/60); s -= m*60;
+  return h ? `${h}:${pp(m)}:${pp(s)}` : `${pp(m)}:${pp(s)}`;
+}
+function lerLS(chave){ try { const v = localStorage.getItem(chave); return v ? JSON.parse(v) : null; } catch(e){ return null; } }
+function gravarLS(chave, v){ try { localStorage.setItem(chave, JSON.stringify(v)); return true; } catch(e){ return false; } }
+let bc = null; try { bc = new BroadcastChannel(CANAL); } catch(e){}
+const ehCamera = c => c && (c.fundo.tipo === 'transparente' || c.fundo.tipo === 'verde');
+const usaCrono = c => c && c.fontes.some(f => f.tipo === 'texto' && f.visivel && /\{cronometro\}/.test(f.texto));
+
+function variaveis(st, c, agora){
+  let contagem;
+  if (st.contagemAlvo && st.contagemAlvo > agora) contagem = fmt(st.contagemAlvo - agora);
+  else contagem = st.contagemAlvo ? 'JÁ JÁ! 👀' : 'EM INSTANTES';
+  const alvo = (st.cena === c.id && st.alvoCena) ? st.alvoCena : agora + (c.minutos || 5) * 60000;
+  const d = new Date(agora);
+  return {
+    ep:st.ep.num, titulo:st.ep.titulo, convidado:st.ep.convidado, proximo:st.ep.proximo,
+    perfis:st.handles.split(/\s+/).filter(Boolean).join('   ·   '),
+    contagem, cronometro: alvo > agora ? fmt(alvo - agora) : (c.textoFim || 'JÁ JÁ!'),
+    noar: st.inicioLive ? fmt(agora - st.inicioLive) : '00:00',
+    hora: pp(d.getHours()) + ':' + pp(d.getMinutes())
+  };
+}
+function resolver(tpl, v){
+  let vazio = false;
+  const texto = String(tpl).replace(/\{(\w+)\}/g, (m, k) => {
+    if (!(k in v)) return m;
+    if (v[k] === '' || v[k] == null) vazio = true;
+    return v[k];
+  });
+  return { texto, vazio };
+}
+
+/* ================= PALCO (o que vai pra live) ================= */
+const quebra = t => esc(t).replace(/\n/g, '<br>');
+const logoHTML = () => `<div class="st-logo"><span class="st-l1">${esc(CFG.nome1)}</span><span class="st-l2">${esc(CFG.nome2)}</span>${CFG.selo ? `<span class="st-pill">${esc(CFG.selo)}</span>` : ''}</div>`;
+function stickersHTML(){
+  const a = CFG.adesivos, em = (a.emojis || '').split(/\s+/).filter(Boolean), rb = (a.rabiscos || '').split(/\s+/).filter(Boolean);
+  const e = i => esc(em[i] || ''), r = i => esc(rb[i] || '');
+  return `
+  ${a.tag1 ? `<div class="st-stk" style="left:80px;top:70px;transform:rotate(-8deg)"><span class="st-tag">${quebra(a.tag1)}</span></div>` : ''}
+  <div class="st-emo" style="left:140px;top:400px;font-size:210px;rotate:-12deg">${e(0)}</div>
+  <div class="st-emo" style="left:400px;bottom:90px;font-size:140px;rotate:8deg">${e(1)}</div>
+  ${a.tag2 ? `<div class="st-stk" style="right:110px;top:80px;transform:rotate(6deg)"><span class="st-tag st-tag-preto">${quebra(a.tag2)}</span></div>` : ''}
+  <div class="st-emo" style="right:150px;top:340px;font-size:170px;rotate:12deg">${e(2)}</div>
+  <div class="st-emo" style="right:400px;bottom:80px;font-size:190px;rotate:-6deg">${e(3)}</div>
+  ${a.tag3 ? `<div class="st-stk" style="right:90px;bottom:110px;transform:rotate(9deg)"><span class="st-tag st-sovem">${quebra(a.tag3)}</span></div>` : ''}
+  <div class="st-doodle" style="left:540px;top:60px">${r(0)}</div>
+  <div class="st-doodle" style="right:540px;top:110px;animation-duration:14s">${r(1)}</div>
+  <div class="st-doodle" style="left:70px;bottom:300px;font-size:70px">${r(2)}</div>`;
+}
+function dinHTML(t){
+  const R = CFG.rotulos;
+  return {
+    letreiro:'<div class="dyn-lower"><div class="st-lower-nome"></div><div class="st-lower-funcao"></div><div class="st-lower-insta"></div></div>',
+    pauta:`<div class="dyn-tema">${R.pauta ? `<b>${esc(R.pauta)}</b>` : ''}<span class="st-tema-txt"></span></div>`,
+    comentario:'<div class="dyn-card"><div class="st-destaque-autor"></div><div class="st-destaque-texto"></div></div>',
+    selo:`<div class="dyn-selo"><i></i>${esc(R.aovivo)}<span class="st-noar"></span></div>`,
+    faixa:`<div class="dyn-ticker">${CFG.nomeCurto ? `<div class="st-ticker-label">${esc(CFG.nomeCurto)}</div>` : ''}<div class="st-ticker-trilho"><div class="st-ticker-texto"></div></div></div>`
+  }[t] || '';
+}
+const tamLogo = f => Math.max(10, Math.round(Math.min(f.w / 4.4, f.h / 2.15)));
+function estiloDin(f){
+  if (f.tipo === 'faixa') return `width:${f.w}px;height:${f.h}px`;
+  const b = DIN[f.tipo]; return `width:${b.w}px;transform:scale(${f.w / b.w})`;
+}
+const geo = f => `left:${f.x}px;top:${f.y}px;width:${f.w}px;height:${f.h}px;opacity:${f.opacidade ?? 1};transform:rotate(${f.rot || 0}deg)`;
+
+function htmlFonte(f){
+  if (!f.visivel) return '';
+  const a = `class="st-f st-f-${f.tipo}" data-fid="${f.id}" style="${geo(f)}`;
+  switch (f.tipo){
+    case 'texto':
+      return `<div ${a}"><div class="st-f-txt al-${f.alinhar || 'centro'}"><span class="tx tx-${f.estilo}" data-tpl="${esc(f.texto)}" data-estilo="${f.estilo}" style="font-family:${FONTES_CSS[f.fonte] || FONTES_CSS.inter};font-size:${f.tamanho}px;color:${f.cor};--fundo:${f.fundo}"></span></div></div>`;
+    case 'imagem':
+      return `<div ${a}${f.sombra ? ';filter:drop-shadow(12px 12px 0 rgba(0,0,0,.8))' : ''}"><img src="${f.src || ''}" alt="" style="width:100%;height:100%;object-fit:${f.ajuste === 'cover' ? 'cover' : 'contain'};${f.raio ? 'border-radius:' + f.raio + 'px' : ''}"></div>`;
+    case 'retangulo':
+      return `<div ${a};background:${f.cor};border-radius:${f.raio || 0}px${f.borda ? ';border:' + f.borda + 'px solid ' + (f.bordaCor || '#3dff2e') : ''}"></div>`;
+    case 'emoji':
+      return `<div ${a};font-size:${Math.round(Math.min(f.w, f.h) * 0.82)}px">${esc(f.texto || '👽')}</div>`;
+    case 'logo':
+      return `<div ${a};font-size:${tamLogo(f)}px"><div class="st-logo-slot st-logo-fit"></div></div>`;
+    case 'adesivos':
+      return `<div ${a}"><div class="st-adesivos" style="transform:scale(${f.w / 1920},${f.h / 1080})">${stickersHTML()}</div></div>`;
+    default:
+      if (!DIN[f.tipo]) return '';
+      return `<div ${a}" data-din="${f.tipo}"><div class="st-din-in" style="${estiloDin(f)}"><div class="st-din-anim">${dinHTML(f.tipo)}</div></div></div>`;
+  }
+}
+function aplicarGeo(el, f){
+  Object.assign(el.style, { left:f.x + 'px', top:f.y + 'px', width:f.w + 'px', height:f.h + 'px', transform:`rotate(${f.rot || 0}deg)`, opacity:f.opacidade ?? 1 });
+  if (f.tipo === 'emoji') el.style.fontSize = Math.round(Math.min(f.w, f.h) * 0.82) + 'px';
+  if (f.tipo === 'logo') el.style.fontSize = tamLogo(f) + 'px';
+  if (f.tipo === 'adesivos'){ const i = el.querySelector('.st-adesivos'); if (i) i.style.transform = `scale(${f.w/1920},${f.h/1080})`; }
+  if (DIN[f.tipo]){ const i = el.querySelector('.st-din-in'); if (i) i.style.cssText = estiloDin(f); }
+}
+function pintarTexto(sp, estilo, texto){
+  if (sp._ult === texto) return;
+  sp._ult = texto;
+  const i = texto.indexOf('\n');
+  if (estilo === 'caixa' && i >= 0){
+    sp.innerHTML = '<span class="lbl"></span><span class="num"></span>';
+    sp.children[0].textContent = texto.slice(0, i);
+    sp.children[1].textContent = texto.slice(i + 1);
+  } else sp.textContent = texto;
+}
+
+function criarPalco(container, opcoes = {}){
+  container.innerHTML = '<div class="st-palco"><div class="st-cenas"></div><div class="st-wipe"><span></span></div></div>';
+  const q = s => container.querySelector(s);
+  const qa = s => container.querySelectorAll(s);
+  const palco = q('.st-palco'), cenasEl = q('.st-cenas');
+  const mapa = new Map();
+  let st = null, cenaVisivel = null, ultLogo, ultTroca, ultCfg, timerWipe = null;
+
+  function encaixar(){
+    const w = container.clientWidth, h = container.clientHeight;
+    if (!w || !h) return;
+    const s = Math.min(w/1920, h/1080);
+    palco.style.transform = `translate(${(w-1920*s)/2}px,${(h-1080*s)/2}px) scale(${s})`;
+  }
+  new ResizeObserver(encaixar).observe(container);
+  window.addEventListener('resize', encaixar);
+  encaixar();
+
+  function preencherLogos(raiz){
+    raiz.querySelectorAll('.st-logo-slot').forEach(slot => {
+      slot.classList.toggle('com-img', !!st.logo);
+      if (st.logo){ slot.innerHTML = ''; const img = new Image(); img.src = st.logo; img.className = 'st-logo-img'; slot.appendChild(img); }
+      else slot.innerHTML = logoHTML();
+    });
+  }
+  function montar(reg, c){
+    reg.el.innerHTML = c.fontes.map(htmlFonte).join('');
+    let t = c.fundo.tipo;
+    if (opcoes.forcarTransparente && t === 'verde') t = 'transparente';
+    reg.el.dataset.fundo = t;
+    reg.el.style.background = t === 'cor' ? c.fundo.cor : (t === 'imagem' && c.fundo.imagem) ? `#000 url("${c.fundo.imagem}") center/cover no-repeat` : '';
+    preencherLogos(reg.el);
+  }
+  function pintarDin(){
+    const ph = !!opcoes.edicao;
+    const set = (sel, v) => qa(sel).forEach(e => e.textContent = v);
+    set('.st-lower-nome', st.lower.nome || (ph ? 'Nome da pessoa' : ''));
+    set('.st-lower-funcao', st.lower.funcao);
+    set('.st-lower-insta', st.lower.insta);
+    set('.st-tema-txt', st.tema.texto || (ph ? 'Assunto da pauta aparece aqui' : ''));
+    set('.st-destaque-autor', st.destaque.autor || CFG.rotulos.autor);
+    set('.st-destaque-texto', st.destaque.texto || (ph ? 'O comentário do chat que você destacar aparece aqui' : ''));
+    const txt = st.ticker.texto.trim() || (ph ? 'Texto da faixa rolante ★ aparece aqui' : '');
+    qa('.st-ticker-texto').forEach(el => {
+      if (el.dataset.txt === txt) return;
+      el.dataset.txt = txt; el.innerHTML = '';
+      if (!txt) return;
+      const partes = txt.split('★').map(s => s.trim()).filter(Boolean);
+      const tam = partes.join('').length + partes.length * 4;
+      const rep = Math.max(1, Math.ceil(110 / Math.max(tam, 1)));
+      for (let i = 0; i < rep * 2; i++) partes.forEach(p => {
+        const s = document.createElement('span'); s.textContent = p; el.appendChild(s);
+        const e = document.createElement('em'); e.textContent = '★'; el.appendChild(e);
+      });
+      el.style.setProperty('--dur', Math.max(12, (tam * rep * 19) / 150) + 's');
+    });
+  }
+  function dinLigado(t){
+    if (opcoes.edicao) return true;
+    switch (t){
+      case 'letreiro': return st.lower.on && !!st.lower.nome.trim();
+      case 'pauta': return st.tema.on && !!st.tema.texto.trim();
+      case 'comentario': return st.destaque.on && !!st.destaque.texto.trim();
+      case 'faixa': return st.ticker.on && !!st.ticker.texto.trim();
+      default: return true;
+    }
+  }
+  function aplicarVisibilidade(){
+    if (!st) return;
+    const atual = st.cenas.find(c => c.id === cenaVisivel) || st.cenas[0];
+    mapa.forEach((v, id) => v.el.classList.toggle('ativa', id === atual.id));
+    qa('.st-f[data-din]').forEach(el => el.classList.toggle('on', dinLigado(el.dataset.din)));
+    tique();
+  }
+
+  function atualizar(novo){
+    st = novo;
+    CFG = st.config;
+    const cfgJson = JSON.stringify(st.config);
+    if (cfgJson !== ultCfg){
+      ultCfg = cfgJson;
+      const k = CFG.cores;
+      palco.style.setProperty('--verde', k.principal); palco.style.setProperty('--roxo', k.secundaria);
+      palco.style.setProperty('--amarelo', k.destaque); palco.style.setProperty('--vermelho', k.alerta);
+      q('.st-wipe span').textContent = CFG.nomeCurto;
+      mapa.forEach(reg => reg.json = null);
+      ultLogo = undefined;
+    }
+    const ids = new Set();
+    st.cenas.forEach(c => {
+      ids.add(c.id);
+      const json = JSON.stringify(c);
+      let reg = mapa.get(c.id);
+      if (!reg){ const el = document.createElement('div'); el.className = 'st-cena'; cenasEl.appendChild(el); reg = { el, json:null, c }; mapa.set(c.id, reg); }
+      reg.c = c;
+      if (reg.json !== json){ reg.json = json; montar(reg, c); }
+    });
+    mapa.forEach((v, id) => { if (!ids.has(id)){ v.el.remove(); mapa.delete(id); } });
+    if (st.logo !== ultLogo){ ultLogo = st.logo; preencherLogos(container); }
+    pintarDin();
+
+    if (ultTroca !== undefined && st.trocaId !== ultTroca && st.visual.transicao && st.trocaTipo !== 'corte' && cenaVisivel !== st.cena && !opcoes.semTransicao){
+      const w = q('.st-wipe');
+      w.classList.remove('play'); void w.offsetWidth; w.classList.add('play');
+      clearTimeout(timerWipe);
+      timerWipe = setTimeout(() => { timerWipe = null; cenaVisivel = st.cena; aplicarVisibilidade(); }, 430);
+    } else if (!timerWipe) cenaVisivel = st.cena;
+    ultTroca = st.trocaId;
+    aplicarVisibilidade();
+  }
+
+  function tique(){
+    if (!st) return;
+    const agora = Date.now();
+    mapa.forEach(reg => {
+      if (!reg.el.classList.contains('ativa') && !opcoes.edicao) return;
+      const v = variaveis(st, reg.c, agora);
+      reg.el.querySelectorAll('[data-tpl]').forEach(sp => {
+        const r = resolver(sp.dataset.tpl, v);
+        pintarTexto(sp, sp.dataset.estilo, r.texto);
+        const box = sp.closest('.st-f');
+        const esconder = r.vazio && !opcoes.edicao;
+        if (box.style.visibility !== (esconder ? 'hidden' : '')) box.style.visibility = esconder ? 'hidden' : '';
+      });
+    });
+    const noar = st.inicioLive ? fmt(agora - st.inicioLive) : (opcoes.edicao ? '00:00' : '');
+    qa('.st-noar').forEach(e => { if (e.textContent !== noar) e.textContent = noar; });
+  }
+  setInterval(tique, 250);
+  return {
+    atualizar,
+    geometria(f){ const el = container.querySelector(`[data-fid="${f.id}"]`); if (el) aplicarGeo(el, f); }
+  };
+}
+
+/* ================= MODO SAÍDA ================= */
+const hash = location.hash;
+if (hash.startsWith('#saida')){
+  const transparente = hash === '#saida-transparente';
+  document.body.classList.add('modo-saida');
+  if (transparente) document.body.classList.add('transparente');
+  document.title = 'EG • Saída';
+  const palco = criarPalco(document.getElementById('saida'), { forcarTransparente: transparente });
+  palco.atualizar(normalizar(lerLS(CHAVE)));
+  const receber = s => palco.atualizar(normalizar(s));
+  window.addEventListener('message', e => { if (e.data && e.data.t === 'eg-estado') receber(e.data.s); });
+  if (bc) bc.onmessage = e => { if (e.data && e.data.t === 'eg-estado') receber(e.data.s); };
+  window.addEventListener('storage', e => { if (e.key === CHAVE && e.newValue){ try { receber(JSON.parse(e.newValue)); } catch(_){} } });
+  const ola = () => { try { window.opener && window.opener.postMessage({ t:'eg-ola' }, '*'); } catch(_){} };
+  ola(); setInterval(ola, 3000);
+  if (!transparente){
+    const aviso = document.createElement('div');
+    aviso.className = 'aviso-saida'; aviso.textContent = 'Clique duplo = tela cheia • capture esta janela no OBS';
+    document.body.appendChild(aviso);
+    setTimeout(() => aviso.style.opacity = 0, 4000);
+    document.addEventListener('dblclick', () => {
+      if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen().catch(()=>{});
+    });
+  }
+  window.addEventListener('hashchange', () => location.reload());
+  return;
+}
+
+/* ================= MODO PAINEL ================= */
+let estado = normalizar(lerLS(CHAVE));
+let pauta = lerLS(CHAVE_PAUTA) || [
+  { id:1, texto:'Abertura + apresentação', feito:false },
+  { id:2, texto:'Assunto principal', feito:false },
+  { id:3, texto:'Perguntas do chat', feito:false },
+];
+let janelaSaida = null, avisouEspaco = false;
+const $ = s => document.querySelector(s);
+const $$ = s => document.querySelectorAll(s);
+const preview = criarPalco($('#preview'));
+const esPalco = criarPalco($('#esPalco'), { edicao:true, semTransicao:true });
+const previaPalco = criarPalco($('#prPrevia'), { semTransicao:true });
+const modoEstudio = () => !!estado.config.painel.modoEstudio;
+const cenaPorId = id => estado.cenas.find(c => c.id === id);
+
+function enviar(){
+  const msg = { t:'eg-estado', s:estado };
+  try { if (janelaSaida && !janelaSaida.closed) janelaSaida.postMessage(msg, '*'); } catch(e){}
+  try { bc && bc.postMessage(msg); } catch(e){}
+  if (!gravarLS(CHAVE, estado) && !avisouEspaco){ avisouEspaco = true; toast('As imagens passaram do limite de memória do navegador — use imagens menores'); }
+}
+function salvar(){
+  enviar(); preview.atualizar(estado);
+  if (modoEstudio()) previaPalco.atualizar({ ...estado, cena:estado.previa, trocaId:0 });
+  renderPainel();
+  if (estudioAberto()) atualizarEstudio();
+}
+function toast(t){ const el = $('#toast'); el.textContent = t; el.classList.add('on'); clearTimeout(toast._t); toast._t = setTimeout(()=>el.classList.remove('on'), 2600); }
+
+function preencherCampos(){
+  $$('[data-k]').forEach(el => {
+    if (el === document.activeElement) return;
+    const v = pegar(estado, el.dataset.k);
+    if (el.type === 'checkbox') el.checked = !!v; else el.value = v ?? '';
+  });
+  const h = $('#horaInicio');
+  if (h !== document.activeElement){
+    if (estado.contagemAlvo){ const d = new Date(estado.contagemAlvo); h.value = pp(d.getHours()) + ':' + pp(d.getMinutes()); }
+    else h.value = '';
+  }
+}
+
+function renderCenas(){
+  const g = $('#cenasGrade'); g.innerHTML = '';
+  estado.cenas.forEach((c, i) => {
+    const item = document.createElement('div'); item.className = 'cena-item';
+    const b = document.createElement('button');
+    b.className = 'cena-btn' + (c.id === estado.cena ? ' ativa' : '') + (modoEstudio() && c.id === estado.previa ? ' previa' : '');
+    b.innerHTML = (i < 9 ? `<kbd>${i+1}</kbd>` : '') + `<span class="ico">${esc(c.icone || '🎬')}</span>${esc(c.nome || 'Sem nome')}<span class="tipo">${ehCamera(c) ? 'câmera' : 'tela cheia'}</span>`;
+    b.onclick = () => modoEstudio() ? porNaPrevia(c.id) : trocarCena(c.id);
+    b.ondblclick = () => { if (modoEstudio()){ porNaPrevia(c.id); trocarCena(c.id); } };
+    const ed = document.createElement('button');
+    ed.className = 'cena-edit'; ed.textContent = '✏️'; ed.title = 'Editar cena';
+    ed.onclick = e => { e.stopPropagation(); abrirEstudio(c.id); };
+    item.append(b, ed); g.appendChild(item);
+  });
+  const nova = document.createElement('button');
+  nova.className = 'cena-btn cena-nova'; nova.innerHTML = '<span class="ico">＋</span>Nova cena';
+  nova.onclick = () => { const c = novaCena(); abrirEstudio(c.id); };
+  g.appendChild(nova);
+  $('#cronoCena').hidden = !usaCrono(cenaPorId(estado.cena));
+  $('#dicaCenas').textContent = modoEstudio()
+    ? 'Modo estúdio: clique numa cena para pôr na PRÉVIA, depois ⇄ Transição (Enter) ou ✂ Corte. Duplo clique leva direto pro ar. Teclas 1–9 escolhem a prévia.'
+    : 'Clique numa cena para pôr no ar. O ✏️ abre a cena no Editor de cenas (fundo, textos, imagens, letreiros). Teclas 1–9 trocam de cena.';
+}
+function porNaPrevia(id){ if (!cenaPorId(id)) return; estado.previa = id; salvar(); }
+function renderPainel(){
+  renderCenas();
+  const atual = cenaPorId(estado.cena);
+  $('#cenaNome').textContent = atual ? `${atual.icone || ''} ${atual.nome}` : '';
+  const pv = cenaPorId(estado.previa);
+  $('#monPreviaNome').textContent = pv ? `${pv.icone || ''} ${pv.nome}` : '';
+  $('#monitores').classList.toggle('estudio', modoEstudio());
+  const bme = $('#btnModoEstudio'); bme.classList.toggle('estudio-on', modoEstudio());
+  bme.textContent = modoEstudio() ? '🎬 Modo estúdio: ligado' : '🎬 Modo estúdio';
+  $$('[data-toggle]').forEach(b => {
+    const on = !!pegar(estado, b.dataset.toggle);
+    b.classList.toggle('on', on);
+    b.textContent = on ? '✔ Na tela — esconder' : b.dataset.label;
+  });
+  $('#logoMini').hidden = !estado.logo;
+  if (estado.logo) $('#logoMini').src = estado.logo;
+  $('#btnRemoverLogo').hidden = !estado.logo;
+  renderPresets();
+  aplicarPainel();
+  renderPauta();
+}
+function aplicarPainel(){
+  const P = estado.config.painel;
+  $('.marca .m1').textContent = P.titulo || ' ';
+  $('.marca .m2').textContent = P.subtitulo || '';
+  $('.marca .m2').hidden = !P.subtitulo;
+  document.documentElement.style.setProperty('--verde', P.cor || '#3dff2e');
+  document.title = (P.titulo || 'Central') + ' — Central da Live';
+}
+
+function trocarCena(id, tipo){
+  const c = cenaPorId(id);
+  if (!c || estado.cena === id) return;
+  estado.cena = id; estado.trocaId++; estado.trocaTipo = tipo || 'anim';
+  estado.alvoCena = Date.now() + (c.minutos || 5) * 60000;
+  if (ehCamera(c) && !estado.inicioLive) estado.inicioLive = Date.now();
+  salvar();
+}
+function novaCena(){
+  const c = { id:novoId('c'), nome:'Nova cena', icone:'✨', fundo:{ tipo:'arte', cor:'#14141f', imagem:null }, minutos:5, textoFim:'JÁ JÁ!',
+    fontes:[ txt({ nome:'Título', texto:'NOVA CENA', estilo:'titulo', fonte:'bangers', tamanho:200, cor:'#3dff2e', x:260, y:400, w:1400, h:240, rot:-3 }) ] };
+  estado.cenas.push(c);
+  salvar();
+  return c;
+}
+
+/* botões rápidos do letreiro (vêm das configurações) */
+function renderPresets(){
+  const box = $('#presets'), assinatura = JSON.stringify(estado.config.apresentadores) + estado.ep.convidado;
+  if (box.dataset.sig === assinatura) return;
+  box.dataset.sig = assinatura; box.innerHTML = '';
+  estado.config.apresentadores.forEach(p => {
+    const b = document.createElement('button');
+    b.className = 'btn'; b.textContent = p.rotulo || p.nome || 'Sem nome';
+    b.onclick = () => {
+      estado.lower.nome = (p.nome || '').replace(/\{convidado\}/g, estado.ep.convidado || 'Nome do convidado');
+      estado.lower.funcao = p.funcao || ''; estado.lower.insta = p.insta || '';
+      preencherCampos(); alternar('lower.on', true);
+    };
+    box.appendChild(b);
+  });
+}
+
+let timerLower = null;
+const NOME_DIN = { 'lower.on':['letreiro','letreiro de nome'], 'tema.on':['pauta','pauta'], 'destaque.on':['comentario','comentário'], 'ticker.on':['faixa','faixa rolante'] };
+function alternar(caminho, forcar){
+  const novo = forcar === undefined ? !pegar(estado, caminho) : forcar;
+  definir(estado, caminho, novo);
+  if (caminho === 'lower.on'){
+    clearTimeout(timerLower);
+    if (novo && estado.config.painel.autoEsconder){
+      const seg = Math.max(3, +estado.config.painel.autoSeg || 10);
+      timerLower = setTimeout(() => { estado.lower.on = false; salvar(); }, seg * 1000);
+    }
+  }
+  if (caminho === 'tema.on' && novo && !estado.temaInicio) estado.temaInicio = Date.now();
+  const atual = cenaPorId(estado.cena), nd = NOME_DIN[caminho];
+  if (novo && nd && atual && !atual.fontes.some(f => f.tipo === nd[0] && f.visivel))
+    toast(`A cena “${atual.nome}” não tem ${nd[1]} — adicione no Editor de cenas (✏️)`);
+  salvar();
+}
+
+$$('[data-k]').forEach(el => {
+  const ev = (el.tagName === 'SELECT' || el.type === 'checkbox') ? 'change' : 'input';
+  el.addEventListener(ev, () => { definir(estado, el.dataset.k, el.type === 'checkbox' ? el.checked : el.value); salvar(); });
+});
+$$('[data-toggle]').forEach(b => b.addEventListener('click', () => alternar(b.dataset.toggle)));
+
+$('#horaInicio').addEventListener('change', e => {
+  const v = e.target.value;
+  if (!v){ estado.contagemAlvo = null; salvar(); return; }
+  const [h, m] = v.split(':').map(Number);
+  const d = new Date(); d.setHours(h, m, 0, 0);
+  if (d.getTime() < Date.now() - 6*3600e3) d.setDate(d.getDate() + 1);
+  estado.contagemAlvo = d.getTime(); salvar();
+});
+
+/* ---------- ações (botões com data-acao) ---------- */
+const acoes = {
+  contagem: b => { estado.contagemAlvo = Date.now() + (+b.dataset.min) * 60000; salvar(); preencherCampos(); },
+  semContagem: () => { estado.contagemAlvo = null; salvar(); preencherCampos(); },
+  comecar: () => {
+    const cam = estado.cenas.find(ehCamera) || estado.cenas.find(c => c.fontes.some(f => f.tipo === 'selo'));
+    if (!cam){ toast('Crie uma cena com fundo transparente ou verde chroma (cena de câmera)'); return; }
+    estado.inicioLive = Date.now();
+    estado.cena === cam.id ? salvar() : trocarCena(cam.id);
+    toast('🔴 Tá no ar! Boa live!');
+  },
+  cronoMais: () => { estado.alvoCena = Math.max(estado.alvoCena || 0, Date.now()) + 60000; salvar(); },
+  cronoMenos: () => { if (estado.alvoCena){ estado.alvoCena = Math.max(Date.now(), estado.alvoCena - 60000); salvar(); } },
+  cronoReiniciar: () => { const c = cenaPorId(estado.cena); if (c){ estado.alvoCena = Date.now() + (c.minutos || 5) * 60000; salvar(); } },
+  limparDestaque: () => { estado.destaque = { on:false, autor:'', texto:'' }; salvar(); preencherCampos(); },
+  iniciarCrono: () => { estado.inicioLive = Date.now(); salvar(); },
+  zerarCrono: () => { estado.inicioLive = null; salvar(); },
+  esconderTudo: () => { estado.lower.on = false; estado.tema.on = false; estado.destaque.on = false; clearTimeout(timerLower); salvar(); },
+  removerLogo: () => { estado.logo = null; salvar(); },
+  ajuda: () => { const d = $('#ajuda'); if (!d.open) d.showModal(); },
+  modoEstudio: () => {
+    estado.config.painel.modoEstudio = !modoEstudio();
+    if (modoEstudio()) estado.previa = estado.cena;
+    salvar();
+    toast(modoEstudio() ? '🎬 Modo estúdio ligado — clique nas cenas para preparar na prévia' : 'Modo estúdio desligado — clique leva direto pro ar');
+  },
+  transicao: () => { if (estado.previa === estado.cena) toast('A prévia já é a cena que está no ar'); else trocarCena(estado.previa, 'anim'); },
+  corte: () => { if (estado.previa !== estado.cena) trocarCena(estado.previa, 'corte'); },
+  fecharAjuda: () => $('#ajuda').close(),
+};
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-acao]');
+  if (b && acoes[b.dataset.acao]) acoes[b.dataset.acao](b);
+});
+$('#ajuda').addEventListener('click', e => { if (e.target === e.currentTarget) e.currentTarget.close(); });
+
+/* ================= PAUTA ================= */
+let pautaEditando = false, pautaArrastando = null, paSel = null;
+const paPreview = criarPalco($('#paPreview'));
+function pautaNoAr(){
+  if (!estado.tema.on) return -1;
+  let i = pauta.findIndex(p => p.id === estado.pautaAtual && p.texto === estado.tema.texto);
+  if (i < 0) i = pauta.findIndex(p => p.texto === estado.tema.texto);
+  return i;
+}
+function pautaAtualIdx(){ // último assunto escolhido, mesmo se escondido
+  const i = pauta.findIndex(p => p.id === estado.pautaAtual);
+  return i >= 0 ? i : pautaNoAr();
+}
+function pautaPorNoAr(item){
+  if (estado.pautaAtual !== item.id) estado.temaInicio = Date.now();
+  estado.pautaAtual = item.id; estado.tema.texto = item.texto; estado.tema.on = true;
+  preencherCampos(); salvar();
+  const atual = cenaPorId(estado.cena);
+  if (atual && !atual.fontes.some(f => f.tipo === 'pauta' && f.visivel)) toast(`A cena “${atual.nome}” não mostra a pauta — troque de cena ou adicione no Editor de cenas`);
+}
+function pautaAdicionar(textos){
+  let n = 0;
+  textos.forEach((t, i) => {
+    t = t.replace(/^\s*(?:[-*•–]|\d+[.)-])\s*/, '').trim(); if (!t) return;
+    let min = 0; const m = t.match(/^(.*?)\s*\|\s*(\d+)\s*(?:min)?\s*$/i);
+    if (m){ t = m[1].trim(); min = +m[2]; }
+    pauta.push({ id: Date.now() + i, texto: t, notas:'', min, feito:false }); n++;
+  });
+  salvarPauta();
+  return n;
+}
+function salvarPauta(){ gravarLS(CHAVE_PAUTA, pauta); renderPauta(); }
+
+function renderPauta(){
+  renderPautaLista(); renderPautaLados();
+  paPreview.atualizar(estado);
+}
+function renderPautaLista(){
+  if (pautaEditando) return;
+  const ul = $('#pautaLista'); ul.innerHTML = '';
+  const feitos = pauta.filter(p => p.feito).length, total = pauta.reduce((s, p) => s + (+p.min || 0), 0);
+  $('#paProgTxt').textContent = pauta.length ? `${feitos} de ${pauta.length} feitos` : '';
+  $('#paProg').style.width = pauta.length ? (feitos / pauta.length * 100) + '%' : '0';
+  $('#paResumo').innerHTML = pauta.length
+    ? `<span>Assuntos: <b>${pauta.length}</b></span><span>Tempo previsto: <b>${total ? total + ' min' : '—'}</b></span><span>No ar há: <b id="paNoAr">${estado.inicioLive ? fmt(Date.now() - estado.inicioLive) : '—'}</b></span>` : '';
+  if (!pauta.length){
+    ul.innerHTML = '<li class="pauta-vazia"><b>📝</b>Nenhum assunto ainda.<br>Digite acima e aperte Enter, ou cole a pauta inteira (um assunto por linha).</li>';
+    return;
+  }
+  const idxAr = pautaNoAr();
+  pauta.forEach((item, i) => {
+    const li = document.createElement('li');
+    li.className = 'pi' + (item.feito ? ' feito' : '') + (i === idxAr ? ' noar' : '') + (item.id === paSel ? ' sel' : '');
+    li.draggable = true;
+    li.innerHTML = `<span class="pi-alca" title="Arraste para mudar a ordem">⠿</span>
+      <button class="pi-check" title="Marcar como feito">✓</button>
+      <span class="pi-num">${i+1}</span>
+      <div class="pi-corpo"><div class="pi-txt"></div><div class="pi-notas"></div></div>
+      ${item.min ? `<span class="pi-min">${+item.min} min</span>` : ''}
+      <button class="btn pi-ar ${i === idxAr ? 'on' : ''}" title="${i === idxAr ? 'Tirar da tela' : 'Mostrar na tela'}">${i === idxAr ? '✔ Na tela' : '▶ Na tela'}</button>
+      <button class="pi-del" title="Apagar">✕</button>`;
+    li.querySelector('.pi-txt').textContent = item.texto;
+    li.querySelector('.pi-notas').textContent = (item.notas || '').split('\n')[0];
+    li.addEventListener('click', e => {
+      if (e.target.closest('.pi-check')){ item.feito = !item.feito; salvarPauta(); return; }
+      if (e.target.closest('.pi-del')){
+        if (item.notas && !confirm(`Apagar “${item.texto}” e suas anotações?`)) return;
+        pauta.splice(i, 1); if (i === idxAr) estado.tema.on = false;
+        if (paSel === item.id) paSel = null;
+        gravarLS(CHAVE_PAUTA, pauta); salvar(); renderPaEditor(); return;
+      }
+      if (e.target.closest('.pi-ar')){ if (i === idxAr){ estado.tema.on = false; salvar(); } else pautaPorNoAr(item); return; }
+      if (e.target.closest('.pi-alca')) return;
+      paSel = item.id; renderPautaLista(); renderPaEditor();
+    });
+    li.addEventListener('dragstart', e => { pautaArrastando = i; li.classList.add('arrastando'); e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', String(i)); } catch(_){} });
+    li.addEventListener('dragend', () => { pautaArrastando = null; renderPautaLista(); });
+    li.addEventListener('dragover', e => {
+      if (pautaArrastando === null) return;
+      e.preventDefault();
+      const r = li.getBoundingClientRect(), baixo = e.clientY > r.top + r.height/2;
+      li.classList.toggle('alvo-baixo', baixo); li.classList.toggle('alvo-cima', !baixo);
+    });
+    li.addEventListener('dragleave', () => li.classList.remove('alvo-cima','alvo-baixo'));
+    li.addEventListener('drop', e => {
+      e.preventDefault();
+      if (pautaArrastando === null) return;
+      const r = li.getBoundingClientRect(), baixo = e.clientY > r.top + r.height/2;
+      const [mov] = pauta.splice(pautaArrastando, 1);
+      let destino = i + (baixo ? 1 : 0);
+      if (pautaArrastando < destino) destino--;
+      pauta.splice(destino, 0, mov);
+      pautaArrastando = null; salvarPauta();
+    });
+    ul.appendChild(li);
+  });
+}
+function renderPautaLados(){
+  const i = pautaNoAr(), atual = pautaAtualIdx(), item = pauta[atual];
+  const card = $('#paAgoraCard');
+  const naTela = i >= 0;
+  card.classList.toggle('vazio', !item);
+  $('#paAgoraRot').textContent = naTela ? '🔴 Na tela agora' : item ? '⏸ Assunto atual (escondido da tela)' : 'Nenhum assunto em andamento';
+  $('#paAgoraTit').textContent = item ? item.texto : (estado.tema.on && estado.tema.texto ? estado.tema.texto : 'Clique em ▶ num assunto ou aperte Próximo');
+  $('#paAgoraNotas').textContent = item ? (item.notas || '') : '';
+  tempoPauta();
+  const prox = pauta.find((p, k) => k > atual && !p.feito) || pauta.find((p, k) => k !== atual && !p.feito);
+  $('#paSeguirTit').textContent = prox ? prox.texto : (pauta.length ? 'Fim da pauta 🎉' : '—');
+  $('#paSeguirNotas').textContent = prox ? (prox.notas || '') : '';
+}
+function tempoPauta(){
+  const el = $('#paAgoraTempo'), item = pauta[pautaAtualIdx()];
+  if (!item || !estado.temaInicio){ el.textContent = ''; return; }
+  const gasto = Date.now() - estado.temaInicio, prev = (+item.min || 0) * 60000;
+  el.innerHTML = '';
+  el.append('⏱ ' + fmt(gasto));
+  if (prev){ const sm = document.createElement('small'); sm.textContent = gasto > prev ? `passou ${fmt(gasto - prev)} do previsto (${item.min} min)` : `de ${item.min} min previstos`; el.append(sm); }
+  el.classList.toggle('estourou', !!prev && gasto > prev);
+}
+function renderPaEditor(){
+  const box = $('#paEditor'); box.innerHTML = '';
+  const item = pauta.find(p => p.id === paSel);
+  if (!item){
+    box.innerHTML = '<div class="pa-rot">Editar assunto</div><p class="dica">Clique num assunto da lista para editar o título, escrever anotações (perguntas, piadas, links) e definir o tempo previsto.</p>';
+    return;
+  }
+  box.innerHTML = '<div class="pa-rot" style="margin-bottom:10px">✏️ Editar assunto <button class="btn sm" data-acao="paFecharEditor" style="margin-left:auto">Fechar</button></div>';
+  const campo = (rotulo, el) => { const l = document.createElement('label'); l.className = 'campo'; l.style.marginBottom = '10px'; l.append(rotulo, el); box.appendChild(l); return el; };
+  const t = document.createElement('input'); t.type = 'text'; t.value = item.texto;
+  campo('Título (é o que aparece na tela)', t);
+  const n = document.createElement('textarea'); n.rows = 6; n.value = item.notas || ''; n.placeholder = 'Só você vê: perguntas, piadas, links, lembretes…';
+  campo('Anotações', n);
+  const m = document.createElement('input'); m.type = 'number'; m.min = 0; m.max = 300; m.value = item.min || '';
+  m.placeholder = '0'; m.style.maxWidth = '140px';
+  campo('Tempo previsto (min)', m);
+  const bar = document.createElement('div'); bar.className = 'linha';
+  const b1 = document.createElement('button'); b1.className = 'btn verde'; b1.textContent = '▶ Colocar na tela'; b1.onclick = () => pautaPorNoAr(item);
+  const b2 = document.createElement('button'); b2.className = 'btn'; b2.textContent = '📄 Duplicar';
+  b2.onclick = () => { const c = { ...item, id: Date.now(), feito:false }; pauta.splice(pauta.indexOf(item) + 1, 0, c); paSel = c.id; salvarPauta(); renderPaEditor(); };
+  bar.append(b1, b2); box.appendChild(bar);
+  const mudou = () => {
+    const eraNoAr = pautaNoAr() >= 0 && pauta[pautaNoAr()] === item;
+    item.texto = t.value; item.notas = n.value; item.min = Math.max(0, +m.value || 0);
+    gravarLS(CHAVE_PAUTA, pauta);
+    if (eraNoAr){ estado.tema.texto = item.texto; preencherCampos(); salvar(); } else renderPauta();
+  };
+  [t, n, m].forEach(el => {
+    el.addEventListener('focus', () => pautaEditando = true);
+    el.addEventListener('blur', () => { pautaEditando = false; renderPautaLista(); });
+    el.addEventListener('input', mudou);
+  });
+}
+$('#pautaNovo').addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  acoes.pautaAdd();
+});
+$('#pautaNovo').addEventListener('paste', e => {
+  const t = (e.clipboardData || window.clipboardData).getData('text');
+  if (!t || !/\n/.test(t.trim())) return;
+  e.preventDefault();
+  toast(`${pautaAdicionar(t.split(/\r?\n/))} assuntos adicionados ✅`);
+});
+Object.assign(acoes, {
+  pautaAdd: () => { const inp = $('#pautaNovo'); if (pautaAdicionar([inp.value])) inp.value = ''; inp.focus(); },
+  pautaProximo: () => {
+    if (!pauta.length){ toast('A pauta está vazia — monte na aba 📝 Pauta'); return; }
+    const i = pautaAtualIdx();
+    if (i >= 0 && estado.tema.on) pauta[i].feito = true;
+    const prox = pauta.find((p, k) => k > i && !p.feito) || pauta.find(p => !p.feito);
+    gravarLS(CHAVE_PAUTA, pauta);
+    if (prox) pautaPorNoAr(prox);
+    else { estado.tema.on = false; salvar(); toast('Pauta concluída! 🎉'); }
+  },
+  pautaAnterior: () => {
+    const i = pautaAtualIdx(); if (i <= 0) return;
+    const ant = pauta[i - 1]; ant.feito = false; gravarLS(CHAVE_PAUTA, pauta); pautaPorNoAr(ant);
+  },
+  pautaZerarTempo: () => { estado.temaInicio = Date.now(); salvar(); },
+  pautaReset: () => { pauta.forEach(p => p.feito = false); salvarPauta(); },
+  pautaLimpar: () => {
+    if (!pauta.length || !confirm('Apagar a pauta inteira (com as anotações)?')) return;
+    if (pautaNoAr() >= 0) estado.tema.on = false;
+    pauta = []; paSel = null; estado.pautaAtual = null; gravarLS(CHAVE_PAUTA, pauta); salvar(); renderPaEditor();
+  },
+  paFecharEditor: () => { paSel = null; renderPautaLista(); renderPaEditor(); },
+});
+
+/* ================= ABAS ================= */
+function mostrarAba(nome){
+  ['controle','pauta','config'].forEach(a => {
+    $('#aba' + a[0].toUpperCase() + a.slice(1)).classList.toggle('on', a === nome);
+  });
+  $$('.aba-btn').forEach(b => b.classList.toggle('on', b.dataset.aba === nome));
+  if (nome === 'config') renderApresentadores();
+  if (nome === 'pauta') renderPaEditor();
+  try { localStorage.setItem('eg_live_aba', nome); } catch(e){}
+  window.scrollTo(0, 0);
+}
+document.addEventListener('click', e => { const b = e.target.closest('[data-aba]'); if (b) mostrarAba(b.dataset.aba); });
+
+/* ================= CONFIGURAÇÕES ================= */
+function renderApresentadores(){
+  const box = $('#aprLista'); box.innerHTML = '';
+  estado.config.apresentadores.forEach((p, i) => {
+    const l = document.createElement('div'); l.className = 'apr-linha';
+    [['rotulo','Botão'],['nome','Nome'],['funcao','Função'],['insta','@']].forEach(([k, ph]) => {
+      const inp = document.createElement('input'); inp.type = 'text'; inp.value = p[k] || ''; inp.placeholder = ph;
+      inp.addEventListener('input', () => { p[k] = inp.value; salvar(); });
+      l.appendChild(inp);
+    });
+    const del = document.createElement('button'); del.className = 'btn sm perigo'; del.textContent = '✕'; del.title = 'Remover';
+    del.onclick = () => { estado.config.apresentadores.splice(i, 1); salvar(); renderApresentadores(); };
+    l.appendChild(del); box.appendChild(l);
+  });
+}
+Object.assign(acoes, {
+  aprAdd: () => { estado.config.apresentadores.push({ rotulo:'🎤 Novo', nome:'', funcao:'', insta:'' }); salvar(); renderApresentadores(); $('#aprLista').lastChild.querySelector('input').focus(); },
+  coresPadrao: () => { estado.config.cores = clone(PADRAO.config.cores); salvar(); preencherCampos(); },
+  exportar: () => {
+    const dados = JSON.stringify({ app:'central-da-live', versao:2, exportadoEm:new Date().toISOString(), estado, pauta }, null, 2);
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([dados], { type:'application/json' }));
+    const d = new Date(); a.download = `central-da-live-${d.getFullYear()}-${pp(d.getMonth()+1)}-${pp(d.getDate())}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+    toast('Backup baixado 💾');
+  },
+  resetarTudo: () => {
+    if (!confirm('Apagar TUDO (cenas, configurações e pauta) e voltar ao começo?')) return;
+    if (!confirm('Tem certeza? Isso não dá pra desfazer — exporte um backup antes se quiser guardar.')) return;
+    try { localStorage.removeItem(CHAVE); localStorage.removeItem(CHAVE_PAUTA); } catch(e){}
+    location.reload();
+  },
+});
+$('#importarArquivo').addEventListener('change', e => {
+  const arq = e.target.files[0]; e.target.value = ''; if (!arq) return;
+  const r = new FileReader();
+  r.onload = () => {
+    try {
+      const d = JSON.parse(r.result);
+      if (!d || !d.estado) throw new Error('formato');
+      if (!confirm('Substituir tudo pelo conteúdo deste backup?')) return;
+      estado = normalizar(d.estado);
+      if (Array.isArray(d.pauta)) { pauta = d.pauta; gravarLS(CHAVE_PAUTA, pauta); }
+      preencherCampos(); salvar(); renderApresentadores(); toast('Backup importado ✅');
+    } catch(err){ toast('Esse arquivo não é um backup da central'); }
+  };
+  r.readAsText(arq);
+});
+
+/* ================= IMAGENS ================= */
+function lerImagem(arquivo, max, pronto){
+  const leitor = new FileReader();
+  leitor.onload = () => {
+    const img = new Image();
+    img.onload = () => {
+      const f = Math.min(1, max / Math.max(img.width, img.height));
+      const c = document.createElement('canvas'); c.width = Math.round(img.width*f); c.height = Math.round(img.height*f);
+      c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+      let url = c.toDataURL('image/webp', 0.85);
+      if (!url.startsWith('data:image/webp')) url = c.toDataURL('image/png');
+      pronto(url, c.width, c.height);
+    };
+    img.src = leitor.result;
+  };
+  leitor.readAsDataURL(arquivo);
+}
+$('#logoArquivo').addEventListener('change', e => {
+  const f = e.target.files[0]; e.target.value = ''; if (!f) return;
+  lerImagem(f, 900, url => { estado.logo = url; salvar(); toast('Logo atualizado 🖼️'); });
+});
+
+/* ================= ESTÚDIO DE CENAS ================= */
+let esCenaId = null, esSelId = null, esDrag = null, esArquivoAlvo = null;
+const estudioAberto = () => !$('#estudio').hidden;
+const esCena = () => cenaPorId(esCenaId);
+const esFonte = () => { const c = esCena(); return c && esSelId ? c.fontes.find(f => f.id === esSelId) : null; };
+const escalaEs = () => $('#esCanvas').clientWidth / 1920;
+
+function abrirEstudio(id){
+  esCenaId = id || estado.cena; esSelId = null;
+  $('#estudio').hidden = false; document.body.style.overflow = 'hidden';
+  $('#esMenu').hidden = true;
+  atualizarEstudio(); renderEsProps();
+}
+function fecharEstudio(){ $('#estudio').hidden = true; document.body.style.overflow = ''; esDrag = null; }
+function atualizarEstudio(){
+  if (!esCena()) esCenaId = estado.cenas[0].id;
+  esPalco.atualizar({ ...estado, cena:esCenaId });
+  const c = esCena();
+  $('#esNomeCena').textContent = `${c.icone || ''} ${c.nome}` + (c.id === estado.cena ? ' · NO AR' : '');
+  renderEsCenas(); renderEsFontes(); renderOverlay();
+}
+function selecionar(id){
+  esSelId = id; $('#esMenu').hidden = true;
+  renderEsFontes(); renderOverlay(); renderEsProps();
+}
+
+function renderEsCenas(){
+  const ul = $('#esCenas'); ul.innerHTML = '';
+  estado.cenas.forEach(c => {
+    const li = document.createElement('li');
+    li.className = 'es-item' + (c.id === esCenaId ? ' sel' : '');
+    li.innerHTML = `<span class="ti">${esc(c.icone || '🎬')}</span><span class="nm"></span>${c.id === estado.cena ? '<span class="badge">NO AR</span>' : ''}`;
+    li.querySelector('.nm').textContent = c.nome;
+    li.onclick = () => { esCenaId = c.id; esSelId = null; atualizarEstudio(); renderEsProps(); };
+    ul.appendChild(li);
+  });
+}
+function renderEsFontes(){
+  const ul = $('#esFontes'); ul.innerHTML = '';
+  const c = esCena(); if (!c) return;
+  if (!c.fontes.length){ ul.innerHTML = '<li class="es-vazio">Cena vazia. Clique em ＋ Adicionar.</li>'; return; }
+  [...c.fontes].reverse().forEach(f => {
+    const li = document.createElement('li');
+    li.className = 'es-item' + (f.id === esSelId ? ' sel' : '') + (f.visivel ? '' : ' oculta');
+    li.innerHTML = `<button class="es-ib olho" title="Mostrar/ocultar">${f.visivel ? '👁️' : '🚫'}</button><span class="ti">${TIPOS[f.tipo] ? TIPOS[f.tipo].ico : '❔'}</span><span class="nm"></span><button class="es-ib cad" title="Travar posição">${f.travada ? '🔒' : '🔓'}</button>`;
+    li.querySelector('.nm').textContent = f.nome;
+    li.onclick = e => {
+      if (e.target.closest('.olho')){ f.visivel = !f.visivel; salvar(); return; }
+      if (e.target.closest('.cad')){ f.travada = !f.travada; salvar(); return; }
+      selecionar(f.id);
+    };
+    ul.appendChild(li);
+  });
+}
+function renderOverlay(){
+  const ov = $('#esOverlay'); ov.innerHTML = '';
+  const c = esCena(); if (!c) return;
+  const s = escalaEs();
+  const ordem = c.fontes.filter(f => f.visivel);
+  const sel = ordem.find(f => f.id === esSelId);
+  if (sel){ ordem.splice(ordem.indexOf(sel), 1); ordem.push(sel); }
+  ordem.forEach(f => {
+    const b = document.createElement('div');
+    b.className = 'es-box' + (f.id === esSelId ? ' sel' : '') + (f.travada ? ' trava' : '');
+    b.dataset.id = f.id; b.title = f.nome;
+    Object.assign(b.style, { left:f.x*s + 'px', top:f.y*s + 'px', width:f.w*s + 'px', height:f.h*s + 'px', transform:`rotate(${f.rot || 0}deg)` });
+    if (f.id === esSelId && !f.travada) ['tl','tr','bl','br'].forEach(k => { const h = document.createElement('div'); h.className = 'es-h ' + k; h.dataset.h = k; b.appendChild(h); });
+    ov.appendChild(b);
+  });
+  ['v','h'].forEach(k => { const g = document.createElement('div'); g.className = 'es-guia ' + k; g.id = 'esGuia' + k; g.hidden = true; ov.appendChild(g); });
+}
+new ResizeObserver(() => { if (estudioAberto()) renderOverlay(); }).observe($('#esCanvas'));
+
+/* arrastar / redimensionar */
+$('#esOverlay').addEventListener('pointerdown', e => {
+  if (e.button !== 0) return;
+  const h = e.target.closest('.es-h'), b = e.target.closest('.es-box');
+  if (!b){ if (esSelId) selecionar(null); return; }
+  const c = esCena(), f = c.fontes.find(x => x.id === b.dataset.id); if (!f) return;
+  if (esSelId !== f.id) selecionar(f.id);
+  if (f.travada) return;
+  esDrag = { f, modo:h ? 'redim' : 'mover', canto:h ? h.dataset.h : null, x0:e.clientX, y0:e.clientY, o:{ x:f.x, y:f.y, w:f.w, h:f.h }, moveu:false };
+  e.preventDefault();
+});
+window.addEventListener('pointermove', e => {
+  if (!esDrag) return;
+  const { f, o } = esDrag, s = escalaEs();
+  const dx = (e.clientX - esDrag.x0) / s, dy = (e.clientY - esDrag.y0) / s;
+  if (!esDrag.moveu && Math.abs(dx) + Math.abs(dy) < 2) return;
+  esDrag.moveu = true;
+  let gv = null, gh = null;
+  if (esDrag.modo === 'mover'){
+    let x = o.x + dx, y = o.y + dy;
+    const snap = (v, alvos) => { for (const [a, g] of alvos) if (Math.abs(v - a) < 14) return [a, g]; return [v, null]; };
+    [x, gv] = snap(x, [[0, 0], [960 - f.w/2, 960], [1920 - f.w, 1920]]);
+    [y, gh] = snap(y, [[0, 0], [540 - f.h/2, 540], [1080 - f.h, 1080]]);
+    if (e.altKey){ gv = gh = null; x = o.x + dx; y = o.y + dy; }
+    f.x = Math.round(x); f.y = Math.round(y);
+  } else {
+    const k = esDrag.canto, esq = k.includes('l'), cima = k.includes('t');
+    let w = Math.max(20, o.w + (esq ? -dx : dx)), h = Math.max(20, o.h + (cima ? -dy : dy));
+    const proporcional = (DIN[f.tipo] && f.tipo !== 'faixa') || f.tipo === 'emoji' || (e.shiftKey && f.tipo !== 'faixa');
+    if (f.tipo === 'faixa') h = o.h;
+    if (proporcional){ const r = o.w / o.h; h = w / r; }
+    f.w = Math.round(w); f.h = Math.round(h);
+    f.x = Math.round(esq ? o.x + o.w - w : o.x);
+    f.y = Math.round(cima ? o.y + o.h - h : o.y);
+  }
+  esPalco.geometria(f);
+  const b = $(`#esOverlay .es-box[data-id="${f.id}"]`);
+  if (b) Object.assign(b.style, { left:f.x*s + 'px', top:f.y*s + 'px', width:f.w*s + 'px', height:f.h*s + 'px' });
+  const g1 = $('#esGuiav'), g2 = $('#esGuiah');
+  if (g1){ g1.hidden = gv === null; if (gv !== null) g1.style.left = gv*s + 'px'; }
+  if (g2){ g2.hidden = gh === null; if (gh !== null) g2.style.top = gh*s + 'px'; }
+  atualizarGeoProps();
+});
+window.addEventListener('pointerup', () => {
+  if (!esDrag) return;
+  const moveu = esDrag.moveu; esDrag = null;
+  if (moveu) salvar(); else renderOverlay();
+});
+$('#esOverlay').addEventListener('dblclick', () => { const t = $('#esProps textarea'); if (t){ t.focus(); t.select(); } });
+
+/* adicionar fontes */
+const NOVAS = {
+  texto: () => txt({ nome:'Texto', texto:'Seu texto aqui', tamanho:64, w:1000, h:120 }),
+  titulo: () => txt({ nome:'Título', texto:'TÍTULO', estilo:'titulo', fonte:'bangers', tamanho:200, cor:'#3dff2e', w:1400, h:240, rot:-3 }),
+  etiqueta: () => txt({ nome:'Etiqueta', texto:'PAPO BOM (OU NÃO)', estilo:'etiqueta', fonte:'marker', tamanho:48, cor:'#111111', fundo:'#ffffff', w:700, h:130, rot:-5 }),
+  caixa: () => txt({ nome:'Caixa de tempo', texto:'VOLTAMOS EM\n{cronometro}', estilo:'caixa', fonte:'bangers', tamanho:150, cor:'#3dff2e', fundo:'#050505', w:900, h:250, rot:-1 }),
+  pill: () => txt({ nome:'Faixa colorida', texto:'{perfis}', estilo:'pill', fonte:'bangers', tamanho:58, cor:'#ffffff', fundo:'#8b3dff', w:1200, h:90 }),
+  retangulo: () => fonte('retangulo', { cor:'#000000', raio:24, opacidade:0.6, w:900, h:220 }),
+  emoji: () => fonte('emoji', { texto:'👽', w:220, h:220 }),
+  logo: () => fonte('logo', { w:720, h:300 }),
+  adesivos: () => fonte('adesivos', { x:0, y:0, w:1920, h:1080 }),
+};
+Object.keys(POS_DIN).forEach(t => NOVAS[t] = () => fonte(t, { ...POS_DIN[t] }));
+function inserirFonte(f, centralizar = true){
+  const c = esCena(); if (!c) return;
+  if (centralizar && !DIN[f.tipo] && f.tipo !== 'adesivos'){ f.x = Math.round((1920 - f.w) / 2); f.y = Math.round((1080 - f.h) / 2); }
+  c.fontes.push(f); esSelId = f.id; $('#esMenu').hidden = true;
+  salvar(); renderEsProps();
+}
+$('#esMenu').addEventListener('click', e => {
+  const b = e.target.closest('[data-add]'); if (!b) return;
+  const t = b.dataset.add;
+  if (t === 'imagem'){ esArquivoAlvo = { modo:'nova' }; $('#esArquivo').click(); return; }
+  const c = esCena();
+  if (DIN[t] && c.fontes.some(f => f.tipo === t)) toast('Essa cena já tem essa fonte — vou adicionar outra mesmo assim');
+  inserirFonte(NOVAS[t]());
+});
+$('#esArquivo').addEventListener('change', e => {
+  const arq = e.target.files[0]; e.target.value = ''; if (!arq || !esArquivoAlvo) return;
+  const alvo = esArquivoAlvo; esArquivoAlvo = null;
+  if (alvo.modo === 'fundo'){
+    lerImagem(arq, 1920, url => { const c = esCena(); if (c){ c.fundo.tipo = 'imagem'; c.fundo.imagem = url; salvar(); renderEsProps(); } });
+  } else if (alvo.modo === 'trocar'){
+    lerImagem(arq, 1600, url => { const f = esFonte(); if (f){ f.src = url; salvar(); } });
+  } else {
+    lerImagem(arq, 1600, (url, w, h) => {
+      const f = Math.min(1, 900 / w, 600 / h);
+      inserirFonte(fonte('imagem', { nome:arq.name.replace(/\.[^.]+$/, '').slice(0, 30) || 'Imagem', src:url, ajuste:'contain', sombra:false, w:Math.round(w*f), h:Math.round(h*f) }));
+    });
+  }
+});
+
+/* ações do estúdio */
+function moverNaLista(lista, item, delta){
+  const i = lista.indexOf(item), j = i + delta;
+  if (i < 0 || j < 0 || j >= lista.length) return false;
+  [lista[i], lista[j]] = [lista[j], lista[i]]; return true;
+}
+function apagarFonte(){
+  const c = esCena(), f = esFonte(); if (!f) return;
+  c.fontes = c.fontes.filter(x => x !== f); esSelId = null;
+  salvar(); renderEsProps();
+}
+Object.assign(acoes, {
+  abrirEstudio: () => abrirEstudio(),
+  fecharEstudio: () => fecharEstudio(),
+  esNoAr: () => { trocarCena(esCenaId); toast('Cena no ar 🔴'); },
+  esMenu: () => { $('#esMenu').hidden = !$('#esMenu').hidden; },
+  esFrente: () => { const f = esFonte(); if (f && moverNaLista(esCena().fontes, f, 1)) salvar(); },
+  esTras: () => { const f = esFonte(); if (f && moverNaLista(esCena().fontes, f, -1)) salvar(); },
+  esDupFonte: () => {
+    const f = esFonte(); if (!f) return;
+    const n = { ...clone(f), id:novoId('f'), nome:f.nome + ' (cópia)', x:f.x + 30, y:f.y + 30 };
+    const c = esCena(); c.fontes.splice(c.fontes.indexOf(f) + 1, 0, n); esSelId = n.id; salvar(); renderEsProps();
+  },
+  esApagaFonte: () => apagarFonte(),
+  esNovaCena: () => { const c = novaCena(); esCenaId = c.id; esSelId = null; atualizarEstudio(); renderEsProps(); },
+  esDupCena: () => {
+    const c = esCena(); if (!c) return;
+    const n = clone(c); n.id = novoId('c'); n.nome = c.nome + ' (cópia)'; n.fontes.forEach(f => f.id = novoId('f'));
+    estado.cenas.splice(estado.cenas.indexOf(c) + 1, 0, n); esCenaId = n.id; esSelId = null; salvar(); renderEsProps();
+  },
+  esSobeCena: () => { if (moverNaLista(estado.cenas, esCena(), -1)) salvar(); },
+  esDesceCena: () => { if (moverNaLista(estado.cenas, esCena(), 1)) salvar(); },
+  esApagaCena: () => {
+    const c = esCena(); if (!c) return;
+    if (estado.cenas.length <= 1){ toast('Precisa ter pelo menos uma cena'); return; }
+    if (!confirm(`Excluir a cena “${c.nome}”?`)) return;
+    const i = estado.cenas.indexOf(c);
+    estado.cenas.splice(i, 1);
+    if (estado.cena === c.id){ estado.cena = estado.cenas[0].id; estado.trocaId++; }
+    esCenaId = estado.cenas[Math.max(0, i - 1)].id; esSelId = null;
+    salvar(); renderEsProps(); toast('Cena excluída');
+  },
+  restaurarCenas: () => {
+    if (!confirm('Voltar para as 4 cenas originais? As cenas criadas e editadas serão apagadas.')) return;
+    estado.cenas = cenasPadrao();
+    if (!cenaPorId(estado.cena)){ estado.cena = estado.cenas[0].id; estado.trocaId++; }
+    esCenaId = estado.cenas[0].id; esSelId = null;
+    salvar(); renderEsProps(); toast('Cenas restauradas');
+  },
+});
+
+/* painel de propriedades */
+function criarCampo(obj, sp){
+  let el;
+  if (sp.t === 'textarea'){ el = document.createElement('textarea'); el.rows = sp.rows || 3; }
+  else if (sp.t === 'select'){ el = document.createElement('select'); sp.op.forEach(([v, l]) => { const o = document.createElement('option'); o.value = v; o.textContent = l; el.appendChild(o); }); }
+  else { el = document.createElement('input'); el.type = sp.t === 'check' ? 'checkbox' : sp.t; ['min','max','step'].forEach(a => { if (sp[a] != null) el[a] = sp[a]; }); }
+  if (sp.t === 'check') el.checked = !!obj[sp.k]; else el.value = obj[sp.k] ?? '';
+  if (sp.geo) el.dataset.geo = sp.k;
+  const ev = (sp.t === 'select' || sp.t === 'check') ? 'change' : 'input';
+  el.addEventListener(ev, () => {
+    let v = sp.t === 'check' ? el.checked : el.value;
+    if (sp.t === 'number' || sp.t === 'range'){ v = Number(v); if (isNaN(v)) return; if (sp.min != null) v = Math.max(sp.min, v); }
+    obj[sp.k] = v;
+    if (sp.depois) sp.depois(v);
+    salvar();
+    if (sp.re) renderEsProps();
+  });
+  if (sp.t === 'check'){ const l = document.createElement('label'); l.className = 'chk'; l.append(el, ' ' + sp.r); return l; }
+  const l = document.createElement('label'); l.className = 'campo'; l.append(sp.r, el); return l;
+}
+function campos(box, obj, specs){ specs.forEach(sp => { if (!sp.se || sp.se()) box.appendChild(criarCampo(obj, sp)); }); }
+function grupo(box, specs, obj, cls){ const d = document.createElement('div'); d.className = cls; campos(d, obj, specs); box.appendChild(d); return d; }
+function info(box, html){ const d = document.createElement('div'); d.className = 'es-info'; d.innerHTML = html; box.appendChild(d); }
+function botao(box, rotulo, fn, cls = ''){ const b = document.createElement('button'); b.className = 'btn sm ' + cls; b.textContent = rotulo; b.onclick = fn; box.appendChild(b); return b; }
+function titulo(box, t){ const h = document.createElement('h4'); h.textContent = t; box.appendChild(h); }
+function atualizarGeoProps(){
+  const f = esFonte(); if (!f) return;
+  $$('#esProps [data-geo]').forEach(el => { if (el !== document.activeElement) el.value = f[el.dataset.geo]; });
+}
+
+function renderEsProps(){
+  const box = $('#esProps'); box.innerHTML = '';
+  const c = esCena(); if (!c) return;
+  const f = esFonte();
+  if (!f){
+    titulo(box, 'Cena');
+    grupo(box, [ { k:'icone', r:'Ícone', t:'text' }, { k:'nome', r:'Nome', t:'text' } ], c, 'es-2');
+    titulo(box, 'Fundo');
+    campos(box, c.fundo, [
+      { k:'tipo', r:'Tipo de fundo', t:'select', re:true, op:[['arte','Arte do podcast'],['preto','Preto'],['cor','Cor sólida'],['imagem','Imagem'],
+        ['verde','Verde chroma — câmeras por trás (captura de janela)'],['transparente','Transparente — câmeras por trás (fonte de navegador)']] },
+      { k:'cor', r:'Cor', t:'color', se:() => c.fundo.tipo === 'cor' },
+    ]);
+    if (c.fundo.tipo === 'imagem'){
+      const d = document.createElement('div'); d.className = 'linha';
+      botao(d, c.fundo.imagem ? '🖼️ Trocar imagem de fundo' : '🖼️ Escolher imagem de fundo', () => { esArquivoAlvo = { modo:'fundo' }; $('#esArquivo').click(); }, 'verde');
+      box.appendChild(d);
+    }
+    if (ehCamera(c)) info(box, '🎥 Cena de câmera: o fundo fica vazado para as câmeras do OBS aparecerem por trás. Ao entrar no ar, o cronômetro “No ar há” começa sozinho.');
+    titulo(box, 'Cronômetro da cena');
+    grupo(box, [
+      { k:'minutos', r:'Duração {cronometro} (min)', t:'number', min:1, max:240 },
+      { k:'textoFim', r:'Quando zerar, mostrar', t:'text' },
+    ], c, 'es-2');
+    info(box, 'Use <b>{cronometro}</b> em qualquer texto para mostrar uma contagem regressiva que começa quando a cena entra no ar. Clique numa fonte (na tela ou na lista) para editar.');
+    return;
+  }
+
+  titulo(box, `${TIPOS[f.tipo].ico} ${TIPOS[f.tipo].nome}`);
+  campos(box, f, [{ k:'nome', r:'Nome da fonte (só aparece aqui)', t:'text', depois:() => renderEsFontes() }]);
+
+  if (f.tipo === 'texto'){
+    campos(box, f, [{ k:'texto', r:'Texto', t:'textarea', rows:3 }]);
+    const chips = document.createElement('div'); chips.className = 'chips';
+    VARS.forEach(([v, rot]) => {
+      const b = document.createElement('button'); b.className = 'chip'; b.textContent = '{' + v + '}'; b.title = rot;
+      b.onclick = () => {
+        const ta = box.querySelector('textarea'), ins = '{' + v + '}';
+        const a = ta.selectionStart ?? ta.value.length, z = ta.selectionEnd ?? a;
+        ta.value = ta.value.slice(0, a) + ins + ta.value.slice(z);
+        ta.dispatchEvent(new Event('input')); ta.focus(); ta.selectionStart = ta.selectionEnd = a + ins.length;
+      };
+      chips.appendChild(b);
+    });
+    box.appendChild(chips);
+    campos(box, f, [{ k:'estilo', r:'Estilo', t:'select', re:true, op:[['simples','Simples (com sombra)'],['titulo','Título verde com contorno'],
+      ['etiqueta','Etiqueta de papel'],['caixa','Caixa de destaque (1ª linha = rótulo)'],['pill','Faixa colorida']] }]);
+    grupo(box, [
+      { k:'fonte', r:'Fonte', t:'select', op:[['bangers','Bangers (quadrinho)'],['marker','Permanent Marker'],['inter','Inter (normal)']] },
+      { k:'tamanho', r:'Tamanho', t:'number', min:8, max:600 },
+      { k:'cor', r:'Cor do texto', t:'color' },
+      { k:'fundo', r:'Cor do fundo', t:'color', se:() => ['etiqueta','caixa','pill'].includes(f.estilo) },
+    ], f, 'es-2');
+    campos(box, f, [{ k:'alinhar', r:'Alinhamento', t:'select', op:[['esq','À esquerda'],['centro','Centralizado'],['dir','À direita']] }]);
+  }
+  if (f.tipo === 'imagem'){
+    const d = document.createElement('div'); d.className = 'linha';
+    botao(d, '🖼️ Trocar imagem', () => { esArquivoAlvo = { modo:'trocar' }; $('#esArquivo').click(); });
+    box.appendChild(d);
+    grupo(box, [
+      { k:'ajuste', r:'Encaixe', t:'select', op:[['contain','Inteira (sem cortar)'],['cover','Preencher (corta)']] },
+      { k:'raio', r:'Cantos arredondados', t:'number', min:0, max:1000 },
+    ], f, 'es-2');
+    campos(box, f, [{ k:'sombra', r:'Sombra estilo adesivo', t:'check' }]);
+  }
+  if (f.tipo === 'retangulo'){
+    grupo(box, [
+      { k:'cor', r:'Cor', t:'color' }, { k:'raio', r:'Cantos arredondados', t:'number', min:0, max:1000 },
+      { k:'borda', r:'Borda (px)', t:'number', min:0, max:60 }, { k:'bordaCor', r:'Cor da borda', t:'color' },
+    ], f, 'es-2');
+  }
+  if (f.tipo === 'emoji') campos(box, f, [{ k:'texto', r:'Emoji (cole qualquer um)', t:'text' }]);
+  if (f.tipo === 'logo') info(box, 'Mostra o logo do podcast. Para usar o PNG oficial, troque em <b>Geral → Usar logo em imagem</b> no painel.');
+  if (f.tipo === 'adesivos') info(box, 'Os adesivos do banner (🎙️ 🍕 👽, “PAPO BOM (OU NÃO)”, “SÓ VEM”). Ocupa a tela toda — redimensione ou deixe atrás de tudo.');
+  const avisos = {
+    letreiro:'Aparece quando você liga o <b>Letreiro de nome</b> no painel (tecla L). O texto vem do painel.',
+    pauta:'Aparece quando você coloca um assunto da <b>pauta</b> na tela (clique no assunto ou tecla N).',
+    comentario:'Aparece quando você liga o <b>Comentário em destaque</b> (tecla C).',
+    selo:'Selo “AO VIVO” com o tempo de live. Sempre visível nesta cena.',
+    faixa:'Aparece quando a <b>Faixa rolante</b> está ligada no painel (tecla F). Puxe as laterais para mudar a largura.'
+  };
+  if (avisos[f.tipo]) info(box, '🎛️ ' + avisos[f.tipo] + ' Aqui no editor ela fica sempre visível para você posicionar.');
+
+  titulo(box, 'Posição e tamanho');
+  grupo(box, [
+    { k:'x', r:'X', t:'number', geo:true }, { k:'y', r:'Y', t:'number', geo:true },
+    { k:'w', r:'Largura', t:'number', geo:true, min:10 }, { k:'h', r:'Altura', t:'number', geo:true, min:10 },
+  ], f, 'es-geo');
+  grupo(box, [
+    { k:'rot', r:'Girar (graus)', t:'number', min:-180, max:180 },
+    { k:'opacidade', r:'Opacidade', t:'range', min:0, max:1, step:0.05 },
+  ], f, 'es-2');
+  const d = document.createElement('div'); d.className = 'linha';
+  botao(d, '⇔ Centralizar', () => { f.x = Math.round((1920 - f.w) / 2); salvar(); atualizarGeoProps(); });
+  botao(d, '⇕ Centralizar', () => { f.y = Math.round((1080 - f.h) / 2); salvar(); atualizarGeoProps(); });
+  botao(d, '⛶ Tela toda', () => { Object.assign(f, { x:0, y:0, w:1920, h:f.tipo === 'faixa' ? f.h : 1080 }); if (f.tipo === 'faixa') f.y = 1080 - f.h; salvar(); atualizarGeoProps(); });
+  box.appendChild(d);
+}
+
+/* teclado no estúdio */
+function teclaEstudio(e){
+  const t = e.target.tagName;
+  if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT'){ if (e.key === 'Escape') e.target.blur(); return; }
+  if (e.key === 'Escape'){ if (!$('#esMenu').hidden) $('#esMenu').hidden = true; else if (esSelId) selecionar(null); else fecharEstudio(); return; }
+  const f = esFonte(); if (!f) return;
+  const passo = e.shiftKey ? 10 : 1;
+  const mov = { ArrowLeft:[-passo,0], ArrowRight:[passo,0], ArrowUp:[0,-passo], ArrowDown:[0,passo] }[e.key];
+  if (mov && !f.travada){ e.preventDefault(); f.x += mov[0]; f.y += mov[1]; salvar(); atualizarGeoProps(); }
+  if (e.key === 'Delete' || e.key === 'Backspace'){ e.preventDefault(); apagarFonte(); }
+}
+
+/* ================= JANELA DE SAÍDA ================= */
+const base = location.href.split('#')[0];
+$('#btnSaida').addEventListener('click', () => {
+  if (janelaSaida && !janelaSaida.closed){ janelaSaida.focus(); return; }
+  janelaSaida = window.open(base + '#saida', 'eg_saida', 'width=1280,height=720');
+  if (!janelaSaida) toast('O navegador bloqueou a janela — libere pop-ups para este arquivo');
+  setTimeout(enviar, 600);
+});
+window.addEventListener('message', e => {
+  if (e.data && e.data.t === 'eg-ola'){ if (!janelaSaida || janelaSaida.closed) janelaSaida = e.source; enviar(); }
+});
+$('#btnLink').addEventListener('click', async () => {
+  const url = base + '#saida-transparente';
+  try { await navigator.clipboard.writeText(url); toast('Link copiado! Cole na fonte de navegador do OBS'); }
+  catch(e){ window.prompt('Copie este link:', url); }
+});
+setInterval(() => {
+  const ok = janelaSaida && !janelaSaida.closed;
+  const s = $('#status'); s.classList.toggle('ok', !!ok);
+  s.textContent = ok ? '● Tela de saída aberta' : '● Tela de saída fechada';
+  $('#pNoAr').textContent = estado.inicioLive ? fmt(Date.now() - estado.inicioLive) : '--:--';
+  const pn = $('#paNoAr'); if (pn) pn.textContent = estado.inicioLive ? fmt(Date.now() - estado.inicioLive) : '—';
+  tempoPauta();
+}, 500);
+
+/* ================= ATALHOS ================= */
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if ($('#ajuda').open) return;
+  if (estudioAberto()){ teclaEstudio(e); return; }
+  const t = e.target.tagName;
+  if (t === 'INPUT' || t === 'TEXTAREA' || t === 'SELECT'){ if (e.key === 'Escape') e.target.blur(); return; }
+  const k = e.key.toLowerCase();
+  if (/^[1-9]$/.test(k)){ const c = estado.cenas[+k - 1]; if (c){ modoEstudio() ? porNaPrevia(c.id) : trocarCena(c.id); e.preventDefault(); } }
+  else if (k === 'enter' && modoEstudio()){ e.preventDefault(); acoes.transicao(); }
+  else if (k === 'n') acoes.pautaProximo();
+  else if (k === '?'){ e.preventDefault(); acoes.ajuda(); }
+  else if (k === 'l') alternar('lower.on');
+  else if (k === 'p') alternar('tema.on');
+  else if (k === 'c') alternar('destaque.on');
+  else if (k === 'f') alternar('ticker.on');
+  else if (k === 'escape') acoes.esconderTudo();
+});
+
+/* ================= INÍCIO ================= */
+preencherCampos();
+preview.atualizar(estado);
+previaPalco.atualizar({ ...estado, cena:estado.previa, trocaId:0 });
+renderPainel();
+renderPaEditor();
+gravarLS(CHAVE, estado);
+mostrarAba(lerAba());
+function lerAba(){ try { const a = localStorage.getItem('eg_live_aba'); return ['controle','pauta','config'].includes(a) ? a : 'controle'; } catch(e){ return 'controle'; } }
+})();
+</script>
+</body>
+</html>
