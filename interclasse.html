@@ -630,7 +630,7 @@ const ACT={
   undo:()=>undo(),redo:()=>redo(),
   histClear:()=>{if(!confirm('Limpar o histórico de alterações?'))return;HIST=[];try{localStorage.setItem(HKEY,'[]')}catch(e){}render()},
   histMore:()=>{F.histN=(F.histN||60)+100;render()},
-  pdfBible:()=>{toast('Gerando a bíblia...');setTimeout(()=>{try{pdfBible({scenes:F.bibScenes!==false,scripts:F.bibScripts!==false}).download('Interclasse_Biblia_da_Serie.pdf');toast('Bíblia da série baixada')}catch(err){console.error(err);alert('Erro ao gerar a bíblia: '+err.message)}},30)},
+  pdfBible:()=>{toast('Gerando a bíblia...');setTimeout(()=>{try{pdfBible({scenes:F.bibScenes!==false,scripts:F.bibScripts!==false}).download('Interclasse - Bíblia.pdf');toast('Bíblia da série baixada')}catch(err){console.error(err);alert('Erro ao gerar a bíblia: '+err.message)}},30)},
   pasteOpen:()=>{const e=episode();if(!e)return;F.paste={epId:e.id,text:'',blocks:null,pre:'',mode:'replace',file:''};drawer={type:'paste',id:e.id};render();setTimeout(()=>$('#pasteText')?.focus(),60)},
   pasteSplit:()=>{if(!F.paste)return;F.paste.text=$('#pasteText')?.value??F.paste.text;if(!F.paste.text.trim()){toast('Cole o roteiro primeiro');return}const r=e2paste();F.paste.blocks=r.blocks;F.paste.pre=r.pre;render()},
   pasteApply:()=>{const P=F.paste,c=epCtx(P?.epId);if(!c||!P.blocks)return;const by={};P.blocks.forEach(b=>{if(b.target&&b.text.trim())(by[b.target]=by[b.target]||[]).push(b.text.trim())});const ids=Object.keys(by);if(!ids.length)return;
